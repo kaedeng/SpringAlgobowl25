@@ -1,0 +1,11 @@
+name: Boiler CI
+
+on:
+  push:
+
+jobs:
+  boiler-test:
+    name: Boiler test, TODO 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
