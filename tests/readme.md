@@ -1,3 +1,16 @@
+# Test specific info
+
+Autograder needs to generate a file from the main function
+CLA will be something like this
+
+'''
+python autograder.py tests/one.test
+'''
+
+This will then (probably) run the main function in our code, which will (hopefully) generate a file, and then the autograder will read that file, perhaps "tests/one.out." Ill try adding something that will allow us to keep the output, but I think I will delete after parsing.
+
+
+
 # Input format
 The first line of the input file contains two positive integers separated by a single space, R and C, indicating the number of rows and columns in the puzzle. <br>
 ie. 3 4
