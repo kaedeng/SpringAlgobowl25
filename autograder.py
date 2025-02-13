@@ -27,18 +27,18 @@ This is an example input, parse through this to return the above array
 2 2 L
 3 3 U
 '''
-def getCLA() -> Optional[List[List[Optional[str]]]]:
+def getAndParse() -> Optional[List[List[Optional[str]]]]:
     if len(sys.argv) == 1:
         print("Error, wrong input format. See --help") 
         return None
-
+    
     fileName = sys.argv[1]
-    # Janky conditions, refactor if needed
+    # Janky conditions and bad logic lol, refactor if needed
     if len(sys.argv) == 2 and sys.argv[1] != "--help":
         fileContents = parseFile(fileName)
-        os.remove(fileName)
     else: # This will hold contents of -- arguments
-        for arg in sys.argv[1::]:
+        fileContents = parseFile(fileName)
+        for arg in sys.argv[2::]:
             if arg[0:2] == "--":
                 # This will be the implementation of the -- arguements, so far, not much here
                 match arg[2::]:
@@ -46,27 +46,30 @@ def getCLA() -> Optional[List[List[Optional[str]]]]:
                         print(
                             "Useful stuff put here!!!"
                         )
-                    case "no-remove":
-                        fileContents = parseFile(fileName)
                     case _:
                         print("UNIMPLEMENTED")
+
+
 
     return [[]]
 
 def runMain(fileName: str) -> None:
     pass
 
-def parseFile(fileName: str) -> Optional[str]:
+def parseFile(fileName: str) -> OOptional[List[List[Optional[str]]]]:
     with open(fileName, 'r') as f:
-        parsed = f.read()
+       file = f.read()
     f.close()
     
     # Check the number of new lines or if the file is empty, then return None
-    if len(parsed) == 0 or parsed.count('\n') < 3:
+    if len(file) == 0 or file.count('\n') < 3:
         return None
+
+    # Need to parse it into the list thingie mcbobber idk bruh
+    parsed =  [[]]
 
     return parsed
 
 if __name__ == "__main__":
     getCLA() 
-z
+
