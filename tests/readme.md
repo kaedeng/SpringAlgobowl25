@@ -56,7 +56,6 @@ For example, the example solution shown in the Your Task section would be encode
 1 4 X<br>
 2 2 L<br>
 3 3 U<br>
-2
 
 Here’s a slightly better solution for the same input:<br>
 10<br>
