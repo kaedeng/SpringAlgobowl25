@@ -14,6 +14,9 @@ def parse_arguments():
     parser.add_argument("-o", help="What and where you want the file to be made")
     parser.add_argument("--trees", type=int, help="Number of trees you want generated")
 
+    # Add row and columns bell curve weight constant (more is more tentability and less is less tentability)
+    parser.add_argument("-w", type=float, help="Constant weight added to tent curve higher number means higher row and column values")
+
     return parser.parse_args()
 
 
@@ -42,7 +45,7 @@ def generate_trees(board, rows, cols, num_of_trees):
     return board
 
 
-def calculate_tents_for_rows(board, rows, cols):
+def calculate_tents_for_rows(board, rows, cols, weight):
     # Initialize variables
     previous_row = 0
     current_row = 0
@@ -75,7 +78,7 @@ def calculate_tents_for_rows(board, rows, cols):
             num_adjacent_row = 2
 
         # Calculate tents for the row
-        num_tents = int(np.random.normal((adjacent_row_total / num_adjacent_row) + 0.5, 1))
+        num_tents = int(np.random.normal((adjacent_row_total / num_adjacent_row) + weight, 1))
         row_tent_num.append(max(0, num_tents))  # Ensure non-negative
 
         # Update row counters
@@ -86,7 +89,7 @@ def calculate_tents_for_rows(board, rows, cols):
     return row_tent_num
 
 
-def calculate_tents_for_columns(board, rows, cols):
+def calculate_tents_for_columns(board, rows, cols, weight):
     # Initialize variables
     previous_col = 0
     current_col = 0
@@ -119,7 +122,7 @@ def calculate_tents_for_columns(board, rows, cols):
             num_adjacent_col = 2
 
         # Calculate tents for the column
-        num_tents = int(np.random.normal((adjacent_col_total / num_adjacent_col) + 0.5, 1))
+        num_tents = int(np.random.normal((adjacent_col_total / num_adjacent_col) + weight, 1))
         col_tent_num.append(max(0, num_tents))  # Ensure non-negative
 
         # Update column counters
@@ -216,11 +219,16 @@ def main():
     # Set variables
     rows = args.Rows
     cols = args.Cols
+    weight = args.w
     output_location = args.o
     num_of_trees = args.trees
 
     if output_location == None:
         output_location = find_unique_filename()
+
+    if weight == None:
+        weight = np.random.normal(0.5, 0.15)
+        print(weight)
 
     while True:
 
@@ -231,10 +239,10 @@ def main():
         board = generate_trees(board, rows, cols, num_of_trees)
 
         # Calculate tents for rows
-        row_tent_num = calculate_tents_for_rows(board, rows, cols)
+        row_tent_num = calculate_tents_for_rows(board, rows, cols, weight)
 
         # Calculate tents for columns
-        col_tent_num = calculate_tents_for_columns(board, rows, cols)
+        col_tent_num = calculate_tents_for_columns(board, rows, cols, weight)
 
         # Draw the board 
         draw(board, row_tent_num, col_tent_num)
