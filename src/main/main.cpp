@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include "input.h"
+#include "ttsolver.h"
 
 int main(int argc, char** argv) {
     Input foobar;
