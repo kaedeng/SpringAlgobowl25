@@ -1,6 +1,8 @@
 #pragma once
 
 class Tile{
+    private:
+    
     Type type;
     char tentDir = 'X';
         
