@@ -15,7 +15,7 @@ Board::Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, s
 
 bool Board::placeTent(){}
 
-bool Board::removeTent(Coord coord){
+bool Board::removeTent(){
     int randCoord = std::rand() % tents.size();
     auto it = tents.begin();
     std::advance(it, randCoord);

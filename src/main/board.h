@@ -53,7 +53,7 @@ class Board{
          * @return true 
          * @return false 
          */
-        bool removeTent(Coord);
+        bool removeTent();
         
         /**
          * @brief Should be a combination of remove tent and place tent, but you can move the tent to any neighbor
