@@ -198,6 +198,7 @@ def find_unique_filename():
 
     base_dir = "tests"
     prefix = "test"
+    extension = "test"
 
     #Does directory exist if not make it
     os.makedirs("tests", exist_ok=True)
@@ -205,7 +206,7 @@ def find_unique_filename():
     #Find next index test that doesn't already exist
     index = 1
     while True:
-        file_path = os.path.join(base_dir, f"{prefix}{index}")
+        file_path = os.path.join(base_dir, f"{prefix}{index}.{extension}")
         if os.path.exists(file_path) == False:
             return file_path
         index += 1
