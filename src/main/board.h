@@ -1,27 +1,36 @@
 #pragma once
 #include "tile.h"
 #include <vector>
+#include <unordered_set>
 
 class Board{
     private:
 
-        static size_t rowCount;
-        static size_t colCount;
+        inline static size_t rowCount = 0;
+        inline static size_t colCount = 0;
 
         std::vector<std::vector<Tile>> board;
         std::vector<size_t> rowTentNum;
         std::vector<size_t> colTentNum;
         size_t volations;
+        std::unordered_set<Coord> tents;
+
+        /**
+         * Finds all violations from the row/column tent count specification
+         */
+        size_t countRowColViolations();
+        /**
+         * Counts all the violations of tents being too close to eachother
+         */
+        size_t countTentViolations();
+        /**
+         * Counts the violations from trees being lonely ;( or trees have too many tents (not cool bro)
+         */
+        size_t countTreeViolations();
 
     public:
 
-        Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board){
-            this->rowCount = rowCount;
-            this->colCount = colCount;
-            this->rowTentNum = rowTentNum;
-            this->colTentNum = colTentNum;
-            this->board = board;
-        }
+        Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board);
 
         /**
          * @brief Checks for all violations on the board at the current moment
