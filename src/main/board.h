@@ -60,5 +60,5 @@ class Board{
          * return value from that
          * @return long 
          */
-        long fitnessFunction(size_t);
+        double fitnessFunction(double);
 };

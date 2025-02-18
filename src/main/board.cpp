@@ -8,4 +8,6 @@ bool Board::removeTent(){}
 
 bool Board::moveTent(){}
 
-long Board::fitnessFunction(size_t averageViolations){}
+double Board::fitnessFunction(double averageViolations){
+    return averageViolations - (double)volations;
+}
