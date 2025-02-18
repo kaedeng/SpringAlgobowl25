@@ -1,8 +1,11 @@
 #include "board.h"
 #include <cmath>
 #include <unordered_set>
+#include <cstdlib>
+#include <ctime>
 
 Board::Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board){
+    srand(time(NULL));
     this->rowCount = rowCount;
     this->colCount = colCount;
     this->rowTentNum = rowTentNum;
@@ -12,7 +15,14 @@ Board::Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, s
 
 bool Board::placeTent(){}
 
-bool Board::removeTent(){}
+bool Board::removeTent(Coord coord){
+    int randCoord = std::rand() % tents.size();
+    auto it = tents.begin();
+    std::advance(it, randCoord);
+    int currentRow = (*it).getRow(); int currentCol = (*it).getCol();
+    board[currentRow][currentCol].setType(Type::NONE);
+    tents.erase(it);
+}
 
 bool Board::moveTent(){}
 
@@ -28,7 +38,7 @@ size_t Board::countRowColViolations(){
         size_t sum = 0;
         for(auto it = tents.begin(); it != tents.end(); it++){
             // Add to sum of tents in row if it equals the current row.
-            sum += ((*it).getRow() == i + 1) ? 1 : 0;
+            sum += ((*it).getRow() == i) ? 1 : 0;
         }
         violations += abs(rowTentNum[i] - sum);
     }
@@ -37,7 +47,7 @@ size_t Board::countRowColViolations(){
         // Get the total amount of tents in the current row
         size_t sum = 0;
         for(auto it = tents.begin(); it != tents.end(); it++){
-            sum += ((*it).getCol() == i + 1) ? 1 : 0;
+            sum += ((*it).getCol() == i) ? 1 : 0;
         }
         violations += abs(colTentNum[i] - sum);
     }
@@ -70,7 +80,7 @@ size_t Board::countTreeViolations(){
     // 0 indexed
     std::unordered_map<Coord, int> trees;
     for(auto it = tents.begin(); it != tents.end(); it++){
-        int currentRow = (*it).getRow() - 1; int currentCol = (*it).getCol() - 1;
+        int currentRow = (*it).getRow(); int currentCol = (*it).getCol();
         Tile currentTile = board[currentRow][currentCol];
         char dir = currentTile.getDir();
         if(dir == 'X') {
@@ -123,7 +133,7 @@ size_t Board::checkViolations(){
     violations += countTreeViolations();
 
     for(auto it = tents.begin(); it != tents.end(); it++){
-        if(board[(*it).getRow() - 1][(*it).getCol() - 1].getDir() == 'X'){
+        if(board[(*it).getRow()][(*it).getCol()].getDir() == 'X'){
             violations++;
         }
     }
