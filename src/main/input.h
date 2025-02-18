@@ -5,13 +5,14 @@
 #include <vector>
 class Input {
 public:
-    bool inputFromFile(std::string fileName);
+    void inputFromFile(std::string fileName);
+    void testOutput();
 
 private:
-    int rows;
-    int columns;
-    std::vector<int> rowTents;
-    std::vector<int> columnTents;
+    size_t rows;
+    size_t columns;
+    std::vector<size_t> rowTents;
+    std::vector<size_t> columnTents;
     std::vector<std::vector<char>> gridRows;
 };
 

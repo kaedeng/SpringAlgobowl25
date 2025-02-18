@@ -6,7 +6,9 @@
 
 int main(int argc, char** argv) {
     Input foobar;
-    foobar.inputFromFile("../tests/one.test");
+
+    foobar.inputFromFile("../tests/testInvalid");
+    foobar.testOutput();
 
     return 0;
 }
