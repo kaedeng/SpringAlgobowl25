@@ -22,7 +22,14 @@ class TTSolver {
      */
     size_t checkViolations();
 
+    /**
+     * @brief Places tent on the iterator's location
+     *
+     * @return true
+     * @return false
+     */
     bool placeTent();
+
     /**
      * @brief Remove the tent on the iterator's location
      * Return values are used as error trackers; this is basically a void function.
