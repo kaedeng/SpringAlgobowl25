@@ -23,7 +23,7 @@ jobs:
       run: mkdir -p build && cd build
 
     - name: Configure CMake
-      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
     - name: Build Project
       run: cmake --build build
