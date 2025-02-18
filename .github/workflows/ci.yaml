@@ -16,11 +16,19 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Cache Build Directory
+      uses: actions/cache@v3
+      with:
+        # Cache the "build" directory
+        path: build
+        # Invalidate the cache if CMakeLists.txt changes.
+        key: ${{ runner.os }}-build-${{ hashFiles('CMakeLists.txt') }}
+
     - name: Install Dependencies
       run: sudo apt update && sudo apt install -y cmake g++ make
 
     - name: Create Build Directory
-      run: mkdir -p build && cd build
+      run: mkdir -p build
 
     - name: Configure CMake
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
