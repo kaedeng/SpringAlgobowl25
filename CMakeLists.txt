@@ -20,6 +20,8 @@ enable_testing()
 
 add_executable(
   hello_test
+  src/main/board.cpp
+  src/main/coord.cpp
   src/test/hello_test.cc
 )
 
