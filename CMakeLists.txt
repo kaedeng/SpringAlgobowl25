@@ -14,7 +14,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp)
+add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp src/main/coord.cpp)
 
 enable_testing()
 
