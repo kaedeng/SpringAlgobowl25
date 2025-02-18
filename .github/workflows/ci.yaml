@@ -1,11 +1,32 @@
-name: Boiler CI
+name: CMake Build and Google Test
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  boiler-test:
-    name: Boiler test, TODO 
-    runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: ubuntu-latest  # Use Windows or Mac if needed
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: sudo apt update && sudo apt install -y cmake g++ make
+
+    - name: Create Build Directory
+      run: mkdir -p build && cd build
+
+    - name: Configure CMake
+      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Project
+      run: cmake --build build
+
+    - name: Run Google Tests
+      run: ctest --test-dir build --output-on-failure
