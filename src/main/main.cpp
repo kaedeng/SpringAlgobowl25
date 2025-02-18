@@ -7,7 +7,7 @@
 int main(int argc, char** argv) {
     Input foobar;
 
-    foobar.inputFromFile("../tests/testInvalid");
+    foobar.inputFromFile(argv[1]);
     foobar.testOutput();
 
     return 0;
