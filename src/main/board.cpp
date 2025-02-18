@@ -22,12 +22,16 @@ bool Board::removeTent(){
     int currentRow = (*it).getRow(); int currentCol = (*it).getCol();
     board[currentRow][currentCol].setType(Type::NONE);
     tents.erase(it);
+
+    checkViolations();
+
+    return true;
 }
 
 bool Board::moveTent(){}
 
 double Board::fitnessFunction(double averageViolations){
-    return averageViolations - (double)volations;
+    return averageViolations - (double)violations;
 }
 
 size_t Board::countRowColViolations(){
@@ -138,5 +142,6 @@ size_t Board::checkViolations(){
         }
     }
 
+    this->violations = violations;
     return violations;
 }

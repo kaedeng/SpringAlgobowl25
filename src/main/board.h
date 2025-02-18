@@ -12,7 +12,7 @@ class Board{
         std::vector<std::vector<Tile>> board;
         std::vector<size_t> rowTentNum;
         std::vector<size_t> colTentNum;
-        size_t volations;
+        size_t violations;
         std::unordered_set<Coord> tents;
 
         /**
