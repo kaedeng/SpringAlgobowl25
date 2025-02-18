@@ -1,8 +1,14 @@
 #pragma once
 
+enum class Type {
+    TREE,
+    TENT,
+    NONE
+};
+
 class Tile{
     private:
-    
+
     Type type;
     char tentDir = 'X';
         
@@ -19,10 +25,3 @@ class Tile{
         void setDir(char tentDir){ this->tentDir = tentDir; }
 
 };
-
-enum class Type {
-    TREE,
-    TENT,
-    NONE
-};
-
