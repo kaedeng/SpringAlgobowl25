@@ -32,7 +32,7 @@ T.T. <br>
 ...T
 
 ## Input Restrictions
-- 1 ≤ R × C ≤ 105
+- 1 ≤ R × C ≤ 10^5
 - 0 ≤ ri ≤ C
 - 0 ≤ ci ≤ R
 
