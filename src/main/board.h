@@ -58,7 +58,7 @@ class Board{
          * @brief This will be the 'heuristic function'
          * Check average violations - current violations.
          * return value from that
-         * @return long 
+         * @return double 
          */
         double fitnessFunction(double);
 };
