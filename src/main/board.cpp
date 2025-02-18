@@ -16,8 +16,9 @@ bool Board::removeTent(){}
 
 bool Board::moveTent(){}
 
-long Board::fitnessFunction(size_t averageViolations){}
-
+double Board::fitnessFunction(double averageViolations){
+    return averageViolations - (double)volations;
+}
 
 size_t Board::countRowColViolations(){
     size_t violations = 0;
