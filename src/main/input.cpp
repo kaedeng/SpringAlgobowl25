@@ -92,7 +92,7 @@ Board Input::inputFromFile(std::string fileName) {
 
     file.close();
 
-    return Board(rows, columns, rowTents, columnTents, boardTiles);
+    return Board(rows, columns, rowTents, columnTents, boardTiles, numTrees);
 }
 
 

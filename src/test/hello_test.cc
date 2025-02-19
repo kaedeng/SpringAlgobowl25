@@ -22,7 +22,7 @@ TEST(BasicTest, BoardUnitTests){
     {Tile(Type::NONE, 2, 0),Tile(Type::NONE, 2, 1),Tile(Type::NONE, 2, 2),Tile(Type::NONE, 2, 3)},
   };
 
-  Board board = Board(3, 4, rowTentNum, colTentNum, boardMap);
+  Board board = Board(3, 4, rowTentNum, colTentNum, boardMap, 2);
 
   // EXPECT_EQ(board[0][0].getType(), Type::NONE);
   // EXPECT_EQ(board[1][1].getType(), Type::TREE);
@@ -39,7 +39,7 @@ TEST(ViolationsTest, BoardUnitTests){
     {Tile(Type::NONE, 2, 0),Tile(Type::NONE, 2, 1),Tile(Type::NONE, 2, 2),Tile(Type::TREE, 2, 3)},
   };
 
-  Board board = Board(3, 4, rowTentNum, colTentNum, boardMap);
+  Board board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
 
   EXPECT_EQ(12, board.checkViolations());
 
@@ -58,7 +58,7 @@ TEST(ViolationsTest, BoardUnitTests){
     {Tile(Type::NONE, 2, 0),Tile(Type::NONE, 2, 1),tent4,Tile(Type::TREE, 2, 3)},
   };
 
-  board = Board(3, 4, rowTentNum, colTentNum, boardMap);
+  board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
 
   EXPECT_EQ(11, board.checkViolations());
 
@@ -77,7 +77,7 @@ TEST(ViolationsTest, BoardUnitTests){
     {Tile(Type::NONE, 2, 0),Tile(Type::NONE, 2, 1),tent4,Tile(Type::TREE, 2, 3)},
   };
 
-  board = Board(3, 4, rowTentNum, colTentNum, boardMap);
+  board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
 
   EXPECT_EQ(10, board.checkViolations());
 }
