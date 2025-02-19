@@ -14,6 +14,7 @@ class Board{
         std::vector<size_t> colTentNum;
         size_t violations;
         std::unordered_set<Coord> tents;
+        size_t numTrees;
 
         /**
          * Finds all violations from the row/column tent count specification
@@ -30,7 +31,7 @@ class Board{
 
     public:
 
-        Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board);
+        Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board, size_t numTrees);
 
         /**
          * @brief Checks for all violations on the board at the current moment
