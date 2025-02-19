@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
 Board::Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, std::vector<size_t> colTentNum, std::vector<std::vector<Tile>> board){
     srand(time(NULL));
@@ -11,6 +12,15 @@ Board::Board(size_t rowCount, size_t colCount, std::vector<size_t> rowTentNum, s
     this->rowTentNum = rowTentNum;
     this->colTentNum = colTentNum;
     this->board = board;
+
+    for(size_t i = 0; i < rowCount; i++){
+        for(size_t j = 0; j < colCount; j++){
+            if(board[i][j].getType() == Type::TENT){
+                tents.insert(board[i][j].getCoord());
+            }
+        }
+    }
+
 }
 
 bool Board::placeTent(){}
@@ -19,7 +29,7 @@ bool Board::removeTent(){
     int randCoord = std::rand() % tents.size();
     auto it = tents.begin();
     std::advance(it, randCoord);
-    int currentRow = (*it).getRow(); int currentCol = (*it).getCol();
+    int currentRow = it->getRow(); int currentCol = it->getCol();
     board[currentRow][currentCol].setType(Type::NONE);
     tents.erase(it);
 
@@ -42,7 +52,7 @@ size_t Board::countRowColViolations(){
         size_t sum = 0;
         for(auto it = tents.begin(); it != tents.end(); it++){
             // Add to sum of tents in row if it equals the current row.
-            sum += ((*it).getRow() == i) ? 1 : 0;
+            sum += (it->getRow() == i) ? 1 : 0;
         }
         violations += abs(rowTentNum[i] - sum);
     }
@@ -51,7 +61,7 @@ size_t Board::countRowColViolations(){
         // Get the total amount of tents in the current row
         size_t sum = 0;
         for(auto it = tents.begin(); it != tents.end(); it++){
-            sum += ((*it).getCol() == i) ? 1 : 0;
+            sum += (it->getCol() == i) ? 1 : 0;
         }
         violations += abs(colTentNum[i] - sum);
     }
@@ -69,7 +79,7 @@ size_t Board::countTentViolations(){
     size_t violations = 0;
     for(auto it = tents.begin(); it != tents.end(); it++){
         for(const Coord& dir : DIRS){
-            Coord adjacent = Coord((*it).getRow() + dir.getRow(), (*it).getCol() + dir.getCol());
+            Coord adjacent = Coord(it->getRow() + dir.getRow(), it->getCol() + dir.getCol());
             if(tents.find(adjacent) != tents.end()){
                 violations++;
                 break;
@@ -84,7 +94,7 @@ size_t Board::countTreeViolations(){
     // 0 indexed
     std::unordered_map<Coord, int> trees;
     for(auto it = tents.begin(); it != tents.end(); it++){
-        int currentRow = (*it).getRow(); int currentCol = (*it).getCol();
+        int currentRow = it->getRow(); int currentCol = it->getCol();
         Tile currentTile = board[currentRow][currentCol];
         char dir = currentTile.getDir();
         if(dir == 'X') {
@@ -131,13 +141,13 @@ size_t Board::countTreeViolations(){
 
 size_t Board::checkViolations(){
     size_t violations = 0;
-
+     
     violations += countRowColViolations();
     violations += countTentViolations();
     violations += countTreeViolations();
 
     for(auto it = tents.begin(); it != tents.end(); it++){
-        if(board[(*it).getRow()][(*it).getCol()].getDir() == 'X'){
+        if(board[it->getRow()][it->getCol()].getDir() == 'X'){
             violations++;
         }
     }
