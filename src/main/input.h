@@ -1,18 +1,23 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "board.h"
+#include "tile.h"
 #include <string>
 #include <vector>
+
 class Input {
 public:
-    bool inputFromFile(std::string fileName);
+    Board inputFromFile(std::string fileName);
+    void testOutput();
 
 private:
-    int rows;
-    int columns;
-    std::vector<int> rowTents;
-    std::vector<int> columnTents;
-    std::vector<std::vector<char>> gridRows;
+    size_t rows;
+    size_t columns;
+    size_t numTrees = 0;
+    std::vector<size_t> rowTents;
+    std::vector<size_t> columnTents;
+    std::vector<std::vector<Tile>> boardTiles;
 };
 
 #endif
