@@ -140,7 +140,6 @@ bool Board::removeTent() {
     }
 
     // Remove the tent from the board
-    int currentRow = it->getRow(); int currentCol = it->getCol();
     board[currentRow][currentCol].setType(Type::NONE);
 
     // Remove tent from the tent set
