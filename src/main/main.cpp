@@ -5,10 +5,10 @@
 #include "ttsolver.h"
 
 int main(int argc, char** argv) {
-    Input foobar;
+    Input inputData;
 
-    foobar.inputFromFile(argv[1]);
-    foobar.testOutput();
+    Board board = inputData.inputFromFile(argv[1]);
+    inputData.testOutput();
 
     return 0;
 }

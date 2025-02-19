@@ -1,11 +1,10 @@
 #include "input.h"
-#include "tile.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
-void Input::inputFromFile(std::string fileName) {
+Board Input::inputFromFile(std::string fileName) {
     std::ifstream file(fileName);
 
     if (!file) {
@@ -73,7 +72,7 @@ void Input::inputFromFile(std::string fileName) {
         columnTents.push_back(tempNum);
     }
 
-    for (size_t i = 0; i < rows; ++i) {
+    for (size_t i = 3; i < rows + 3; ++i) {
         std::vector<Tile> tempVector;
         for (size_t j = 0; j < columns; ++j) {
             if (lines[i][j] == '.') {
@@ -81,6 +80,7 @@ void Input::inputFromFile(std::string fileName) {
             }
             else if (lines[i][j] == 'T') {
                 tempVector.push_back(Tile(Type::TREE, i, j));
+                ++numTrees;
             }
             else {
                 throw std::runtime_error("Invalid input: Tile is not '.' or 'T'");
@@ -91,6 +91,8 @@ void Input::inputFromFile(std::string fileName) {
     }
 
     file.close();
+
+    return Board(rows, columns, rowTents, columnTents, boardTiles);
 }
 
 
@@ -108,12 +110,10 @@ void Input::testOutput() {
     }
     std::cout << '\n';
 
-    /*
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
-            std::cout << boardTiles[i][j].getType();
+            std::cout << (int)(boardTiles[i][j].getType());
         }
         std::cout << '\n';
     }
-    */
 }
