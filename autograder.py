@@ -419,7 +419,7 @@ def main():
     args = setupParser()
 
     if args.command == "info":
-        print("Usage: python autograder.py <outputFilename> <inputFilename> <--flags>\n")
+        print("Usage: python autograder.py <inputFilename> <outputFilename> <--flags>\n")
 
         print("File format for input file")
         print("     First line: <row> <column>")
