@@ -2,11 +2,6 @@ name: CMake Build and Google Test
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build-and-test:
