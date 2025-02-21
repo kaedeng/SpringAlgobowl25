@@ -11,7 +11,10 @@ Helper Functions (Add more if needed)
 /////////////////////////////////////////////////////////////////////////////
 */
 
-bool Board::hasAdjacentTent(const Coord &coord) {
+// Get all adjacent tents from a given coord, roughly O( 8log(n) )
+std::unordered_set<Coord> Board::getAdjacentTents(const Coord &coord) const {
+    std::unordered_set<Coord> adj; 
+
     const Coord DIRS[8] = {
         Coord(-1, -1), Coord(-1, 0), Coord(-1, 1),
         Coord(0, -1),                Coord(0, 1),
@@ -21,37 +24,32 @@ bool Board::hasAdjacentTent(const Coord &coord) {
     for (auto &dir : DIRS) {
         Coord adjacent(coord.getRow() + dir.getRow(), coord.getCol() + dir.getCol());
         if (tents.find(adjacent) != tents.end())
-            return true;
+            adj.insert(adjacent);
     }
-    return false;
+    return adj;
 }
 
+// Update all tents if they need to. roughly O( 8log(n) + 64log(n) )
 void Board::updateTentAdjacencyForCoord(const Coord &coord) {
     // Update the current tent's violation status.
+
+    std::unordered_set<Coord> adj = getAdjacentTents(coord);
+
     bool prevStatus = tentAdjViolation[coord];
-    bool newStatus = hasAdjacentTent(coord);
+    bool newStatus = adj.size() != 0;
     if (prevStatus != newStatus) {
         tentViolations += (newStatus ? 1 : -1);
         tentAdjViolation[coord] = newStatus;
     }
 
-    // Define all 8 adjacent directions.
-    const Coord DIRS[8] = {
-        Coord(-1, -1), Coord(-1, 0), Coord(-1, 1),
-        Coord(0, -1),                Coord(0, 1),
-        Coord(1, -1),  Coord(1, 0),  Coord(1, 1)
-    };
-
     // Update each neighboring tent's violation status.
-    for (auto &dir : DIRS) {
-        Coord adjacent(coord.getRow() + dir.getRow(), coord.getCol() + dir.getCol());
-        if (tents.find(adjacent) != tents.end()) {
-            bool prevAdjStatus = tentAdjViolation[adjacent];
-            bool newAdjStatus = hasAdjacentTent(adjacent);
-            if (prevAdjStatus != newAdjStatus) {
-                tentViolations += (newAdjStatus ? 1 : -1);
-                tentAdjViolation[adjacent] = newAdjStatus;
-            }
+    for (const Coord& neighbor : adj) {
+        std::unordered_set<Coord> neighborAdj = getAdjacentTents(neighbor);
+        bool prevNeighborStatus = tentAdjViolation[neighbor];
+        bool newNeighborStatus = !neighborAdj.empty();
+        if (prevNeighborStatus != newNeighborStatus) {
+            tentViolations += (newNeighborStatus ? 1 : -1);
+            tentAdjViolation[neighbor] = newNeighborStatus;
         }
     }
 }
@@ -62,6 +60,8 @@ Actual functions
 /////////////////////////////////////////////////////////////////////////////
 */
 
+// O( n + m + n*m * (nlog(n) + 72log(n) ) if theres a shit load of tents lol.
+// theta( n + m + n*m * klog(n) ) probably.
 Board::Board(
     size_t rowCount, 
     size_t colCount,
@@ -180,7 +180,7 @@ bool Board::placeTent() {
                       tents.insert(newCoord);
   
                       // Check for adjacent tent violations.
-                      bool newTentAdj = hasAdjacentTent(newCoord);
+                      bool newTentAdj = getAdjacentTents(newCoord).size() == 0;
                       tentAdjViolation[newCoord] = newTentAdj;
                       if (newTentAdj)
                           tentViolations++;

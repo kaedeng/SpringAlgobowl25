@@ -44,7 +44,7 @@ class Board{
         size_t violations;
 
         // Helper functions to update a tent’s adjacent violation status.
-        bool hasAdjacentTent(const Coord &coord);
+        std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
         void updateTentAdjacencyForCoord(const Coord &coord);
 
         /**
