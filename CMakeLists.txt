@@ -19,16 +19,17 @@ add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp s
 enable_testing()
 
 add_executable(
-  hello_test
+  run_tests
   src/main/board.cpp
   src/main/coord.cpp
-  src/test/hello_test.cc
+  src/main/input.cpp
+  src/test/tests.cc
 )
 
 target_link_libraries(
-  hello_test
+  run_tests
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(run_tests)

@@ -167,7 +167,7 @@ size_t Board::countRowColViolations(){
             // Add to sum of tents in row if it equals the current row.
             sum += (it->getRow() == i) ? 1 : 0;
         }
-        violations += abs(rowTentNum[i] - sum);
+        violations += abs((int)(rowTentNum[i] - sum));
     }
 
     for(size_t i = 0; i < colCount; i++){
@@ -176,7 +176,7 @@ size_t Board::countRowColViolations(){
         for(auto it = tents.begin(); it != tents.end(); it++){
             sum += (it->getCol() == i) ? 1 : 0;
         }
-        violations += abs(colTentNum[i] - sum);
+        violations += abs((int)(colTentNum[i] - sum));
     }
 
     return violations;
@@ -267,4 +267,12 @@ size_t Board::checkViolations(){
 
     this->violations = violations;
     return violations;
+}
+
+Tile Board::getTile(size_t row, size_t col) const{
+    return board[row][col];
+}
+
+Tile Board::setTile(Tile tile, size_t row, size_t col){
+    board[row][col] = tile;
 }
