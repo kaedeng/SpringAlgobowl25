@@ -71,4 +71,18 @@ class Board{
          * @return double 
          */
         double fitnessFunction(double);
+
+        /**
+         * @brief Get the Tile given a row and column
+         * 0 Indexed
+         * @return Tile 
+         */
+        Tile getTile(size_t, size_t) const;
+
+        /**
+         * @brief Get the Tile given a row and column
+         * 0 Indexed
+         * @return Tile 
+         */
+        Tile setTile(Tile, size_t, size_t);
 };
