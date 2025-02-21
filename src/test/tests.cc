@@ -44,7 +44,6 @@ TEST(ViolationsTest, BoardUnitTests){
   };
 
   Board board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
-
   EXPECT_EQ(12, board.checkViolations());
 
   Tile tent1 = Tile(Type::TENT, 0, 0);
@@ -63,7 +62,6 @@ TEST(ViolationsTest, BoardUnitTests){
   };
 
   board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
-
   EXPECT_EQ(11, board.checkViolations());
 
   tent1 = Tile(Type::TENT, 0, 0);
