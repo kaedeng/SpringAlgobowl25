@@ -38,7 +38,7 @@ class Board{
 
         // Lonely tent/tree violations
         size_t treeViolations;        // Count of trees where treeTentCount != 1
-        size_t invalidTentViolations; // Count of tents with no valid tree (dir 'X')
+        size_t lonelyTentViolations; // Count of tents with no valid tree (dir 'X')
         
         // Total violations
         size_t violations;
@@ -75,7 +75,7 @@ class Board{
          * @brief Checks for all violations on the board at the current moment
          * @return current number of violations
          */
-        size_t checkViolations();
+        size_t getViolations();
 
         /**
          * @brief (currently) Places tent randomly
@@ -126,7 +126,7 @@ class Board{
          * 0 Indexed
          * @return Tile 
          */
-        Tile setTile(Tile&, size_t, size_t);
+        void setTile(Tile&, size_t, size_t);
 
         void debugPrintViolations();
 };

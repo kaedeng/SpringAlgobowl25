@@ -31,7 +31,7 @@ TEST(BasicTest, BoardUnitTests){
 /**
  * @brief Tests violation tracking with prebuilt tent/tree board
  * @test Board()
- * @test checkViolations()
+ * @test getViolations()
  */
 TEST(ViolationsTest, BoardUnitTests){
   std::vector<size_t> rowTentNum = {0, 0, 3};
@@ -44,7 +44,7 @@ TEST(ViolationsTest, BoardUnitTests){
   };
 
   Board board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
-  EXPECT_EQ(12, board.checkViolations());
+  EXPECT_EQ(12, board.getViolations());
 
   Tile tent1 = Tile(Type::TENT, 0, 0);
   tent1.setDir('R');
@@ -62,7 +62,7 @@ TEST(ViolationsTest, BoardUnitTests){
   };
 
   board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
-  EXPECT_EQ(11, board.checkViolations());
+  EXPECT_EQ(11, board.getViolations());
 
   tent1 = Tile(Type::TENT, 0, 0);
   tent1.setDir('R');
@@ -81,7 +81,7 @@ TEST(ViolationsTest, BoardUnitTests){
 
   board = Board(3, 4, rowTentNum, colTentNum, boardMap, 4);
 
-  EXPECT_EQ(10, board.checkViolations());
+  EXPECT_EQ(10, board.getViolations());
 }
 
 TEST(DebugOutputTest, IOTest){
