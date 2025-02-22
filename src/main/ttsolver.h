@@ -83,6 +83,8 @@ class TTSolver {
      */
     void mutation(Board&, std::mt19937 &gen);
 
+    void initialize();
+
     std::vector<int> splice(const std::vector<int>& array, int startIndex, int endIndex);
 
 };

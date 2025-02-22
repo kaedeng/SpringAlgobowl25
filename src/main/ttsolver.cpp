@@ -141,6 +141,24 @@ void TTSolver::mutation(Board& child, std::mt19937 &gen) {
     }
 }
 
+void TTSolver::initialize(){
+    numRows = startingBoard.getNumRows();
+    numCols = startingBoard.getNumCols();
+    numTiles = numRows * numCols;
+    
+    // Create a random number generator.
+    std::mt19937 gen(std::random_device{}());
+    
+    int count = 1;
+    const double k = 1/currentGeneration.size();
+    for (auto &board : currentGeneration) {
+        for (int i = 0; i < (int)(k * board.getNumTiles()); ++i) {
+            mutation(board, gen);
+        }
+        count++;
+    }
+}
+
 /*
 ////////////////////////////////////////////////////
 Running and Output
