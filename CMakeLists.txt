@@ -23,6 +23,7 @@ add_executable(
   src/main/board.cpp
   src/main/coord.cpp
   src/main/input.cpp
+  src/main/ttsolver.cpp
   src/test/tests.cc
 )
 

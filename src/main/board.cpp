@@ -338,10 +338,19 @@ bool Board::removeTent() {
 
     // Get tent coords
     Coord coord = *it;
+    
+    // Remove tent
+    deleteTent(coord);
+
+    return true;
+}
+
+bool Board::deleteTent(Coord coord) {
+
     int r = coord.getRow();
     int c = coord.getCol();
 
-    tents.erase(it);
+    tents.erase(coord);
 
     board[r][c].setType(Type::NONE);
 
@@ -376,6 +385,7 @@ bool Board::removeTent() {
     violations = rowViolations + colViolations + tentViolations + treeViolations + lonelyTentViolations;
 
     return true;
+
 }
 
 bool Board::moveTent(){
@@ -387,11 +397,6 @@ bool Board::moveTent(){
 
     return false;
 }
-
-double Board::fitnessFunction(double averageViolations){
-    return averageViolations - (double)violations;
-}
-
 
 /*
 /////////////////////////////////////////////////////////////////////////////
@@ -407,10 +412,12 @@ void Board::setTile(const Tile tile){
     size_t col = tile.getCoord().getCol();
     size_t row = tile.getCoord().getRow();
 
-    board[row][col] = tile;
-
-    if (tile.getType() == Type::TENT)
+    if (board[row][col].getType() == Type::NONE && tile.getType() == Type::TENT)
         placeTent(board[row][col]);
+    else if (board[row][col].getType() == Type::TENT && tile.getType() == Type::NONE)
+        deleteTent(board[row][col].getCoord());
+    else
+        board[row][col] = tile;
 
 }
 
@@ -423,6 +430,6 @@ void Board::debugPrintViolations(){
     std::cout << "Total Violations: " << violations << std::endl;
 }
 
-size_t Board::getViolations(){
+size_t Board::getViolations() const{
     return violations;
 }

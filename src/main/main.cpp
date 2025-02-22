@@ -22,5 +22,9 @@ int main(int argc, char** argv) {
         clFlags(&inputData, argv[i]);
     }
 
+    // generationSize, maxGenerations, sameChildrenNum
+    TTSolver solver(100, 1000, 10, board);
+    solver.solve();
+
     return 0;
 }

@@ -43,6 +43,9 @@ class Board{
         // Total violations
         size_t violations;
 
+        // Num tiles
+        size_t numTiles = rowCount * colCount;
+
         // Helper functions to update a tent’s adjacent violation status.
         std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
         void updateTentAdjacencyForCoord(const Coord &coord);
@@ -65,7 +68,7 @@ class Board{
          * @brief Checks for all violations on the board at the current moment
          * @return current number of violations
          */
-        size_t getViolations();
+        size_t getViolations() const;
 
         /**
          * @brief Places tent based on given coords
@@ -90,20 +93,19 @@ class Board{
         bool removeTent();
         
         /**
+         * @brief Deletes a tent at the given tile's coords
+         * @return true 
+         * @return false 
+         */
+        bool deleteTent(Coord coord);
+    
+        /**
          * @brief Should be a combination of remove tent and place tent, but you can move the tent to any neighbor
          * Return values are used as error trackers; this is basically a void function.
          * @return true 
          * @return false 
          */
         bool moveTent();
-
-        /**
-         * @brief This will be the 'heuristic function'
-         * Check average violations - current violations.
-         * return value from that
-         * @return double 
-         */
-        double fitnessFunction(double);
 
         /*
         /////////////////////////////////////////////////////////////////////////////
@@ -131,4 +133,15 @@ class Board{
         void drawBoard() const;
 
         void debugPrintViolations();
+
+        /**
+         * @brief Returns the number of rows
+         */
+        size_t getNumRows() const { return rowCount; };
+
+        /**
+         * @brief Returns the number of cols
+         */
+        size_t getNumCols() const { return colCount; };
+        
 };
