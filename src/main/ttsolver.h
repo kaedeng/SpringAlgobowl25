@@ -18,7 +18,17 @@ class TTSolver {
      * @brief Construct a new TTSolver object
      * Should just pass the information from parsing files to initialize this
      */
-    TTSolver(size_t generationSize, size_t maxGenerations, size_t sameChildrenNum, const Board& board) : gen(std::random_device{}()), generationSize(generationSize), maxGenerations(maxGenerations), sameChildrenNum(sameChildrenNum), startingBoard(board) {};
+    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate)
+    : gen(std::random_device{}()), 
+    generationSize(generationSize), 
+    maxGenerations(maxGenerations), 
+    startingBoard(board),
+    mutationChance(mutationChance),
+    selectionFactor(selectionFactor),
+    coolingRate(coolingRate)
+    {
+        coolingRate = (double)mutationChance/(double)maxGenerations;
+    };
 
     void solve();
 
@@ -26,15 +36,20 @@ class TTSolver {
 
     std::mt19937 gen;
 
+    // Tune-ables (tuna?)
     size_t generationSize;
     size_t maxGenerations;
-    size_t sameChildrenNum;
     Board startingBoard;
+    int mutationChance;
+    double coolingRate; // Should be like 0.98 or something high
+
+    int selectionFactor;
 
     size_t numTiles;
     size_t numRows;
     size_t numCols;
-
+    
+    // Holds the set of boards, starting with a set starting board
     std::vector<Board> currentGeneration{generationSize, startingBoard};
     std::vector<int> bestViolationsHistory;
 
@@ -59,17 +74,18 @@ class TTSolver {
     /**
      * @brief Selects the next generation
      */
-    void selection();
+    std::vector<Board> selection(std::vector<Board>);
 
     /**
      * @brief Creates the next generation and mixes genes
      */
-    void crossover();
+    std::vector<Board> crossover(std::vector<Board>);
 
     /**
      * @brief Mutates the next generation
      */
-    void mutation();
+    void mutation(Board&);
 
+    std::vector<int> splice(const std::vector<int>& array, int startIndex, int endIndex);
 
 };

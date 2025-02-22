@@ -236,6 +236,25 @@ Board::Board(
 
 }
 
+Board::Board(const Board& other)
+    : board(other.board),
+      rowTentNum(other.rowTentNum),
+      colTentNum(other.colTentNum),
+      currentRowTents(other.currentRowTents),
+      currentColTents(other.currentColTents),
+      tents(other.tents),
+      tentAdjViolation(other.tentAdjViolation),
+      treeTentCount(other.treeTentCount),
+      numTrees(other.numTrees),
+      rowViolations(other.rowViolations),
+      colViolations(other.colViolations),
+      tentViolations(other.tentViolations),
+      treeViolations(other.treeViolations),
+      lonelyTentViolations(other.lonelyTentViolations),
+      violations(other.violations),
+      numTiles(other.numTiles)
+{}
+
 bool Board::placeTent(Tile& tile) {
     int r = tile.getCoord().getRow();
     int c = tile.getCoord().getCol();
@@ -453,4 +472,8 @@ void Board::debugPrintViolations(){
 
 size_t Board::getViolations() const{
     return violations;
+}
+
+std::vector<std::vector<Tile>> Board::getBoard(){
+    return board;
 }
