@@ -378,7 +378,15 @@ bool Board::removeTent() {
     return true;
 }
 
-bool Board::moveTent(){}
+bool Board::moveTent(){
+
+    if(removeTent()){
+        if(addTent())
+            return true;
+    }
+
+    return false;
+}
 
 double Board::fitnessFunction(double averageViolations){
     return averageViolations - (double)violations;
