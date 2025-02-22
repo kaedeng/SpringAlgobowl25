@@ -152,7 +152,7 @@ void TTSolver::initialize(){
     int count = 1;
     const double k = 1/currentGeneration.size();
     for (auto &board : currentGeneration) {
-        for (int i = 0; i < (int)(k * board.getNumTiles()); ++i) {
+        for (int i = 0; i < (int)(count * k * board.getNumTiles()); ++i) {
             mutation(board, gen);
         }
         count++;
@@ -174,6 +174,13 @@ void TTSolver::solve(){
         iterate();
         //mutationChance *= coolingRate;
         std::cout << "iteration: " << i << std::endl;
+        std::sort(currentGeneration.begin(), currentGeneration.end(), 
+            [](const Board& a, const Board& b) {
+                return a.getViolations() < b.getViolations();
+            }
+        );
+
+        std::cout << currentGeneration[0].getViolations() << std::endl;
     }
 
     createOutput();
