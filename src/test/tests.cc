@@ -176,3 +176,68 @@ TEST(BoardEquivalence, CompareBoardObjects) {
       }
   }
 }
+
+TEST(BoardPrint, PrintBoard) {
+
+  srand(1);
+
+  std::string filePath = "../tests/one.test";
+  Input input;
+  Board generatedBoard = input.inputFromFile(filePath);
+
+  std::stringstream buffer;
+  std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+  generatedBoard.drawBoard();
+  std::cout.rdbuf(old);
+
+  std::string output = buffer.str();
+  std::string expected;
+  expected += "     1  1  2  1 \n";
+  expected += "   +------------+\n";
+  expected += " 0 | .  T  .  . |\n";
+  expected += " 0 | T  .  T  . |\n";
+  expected += " 3 | .  .  .  T |\n";
+  expected += "   +------------+\n";
+
+  EXPECT_EQ(output, expected);
+
+  generatedBoard.setTile(Tile(Type::TREE, 0, 0));
+
+  buffer.str("");
+  old = std::cout.rdbuf(buffer.rdbuf());
+  generatedBoard.drawBoard();
+  std::cout.rdbuf(old);
+
+  output = buffer.str();
+  expected = "";
+  expected += "     1  1  2  1 \n";
+  expected += "   +------------+\n";
+  expected += " 0 | T  T  .  . |\n";
+  expected += " 0 | T  .  T  . |\n";
+  expected += " 3 | .  .  .  T |\n";
+  expected += "   +------------+\n";
+
+  EXPECT_EQ(output, expected);
+
+}
+
+TEST(AddTent, TentMoves) {
+  std::string filePath = "../tests/onetile.test";
+  Input input;
+  Board generatedBoard = input.inputFromFile(filePath);
+
+  generatedBoard.addTent();
+
+  EXPECT_EQ(generatedBoard.getTile(0, 0).getType(), Type::TENT);
+
+  filePath = "../tests/ninetiletree.test";
+  generatedBoard = input.inputFromFile(filePath);
+
+  generatedBoard.addTent();
+  generatedBoard.addTent();
+  generatedBoard.addTent();
+  generatedBoard.addTent();
+
+  EXPECT_EQ(generatedBoard.addTent(), false);
+
+}
