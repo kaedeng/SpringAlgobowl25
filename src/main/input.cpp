@@ -5,6 +5,11 @@
 #include <stdexcept>
 
 Board Input::inputFromFile(std::string fileName) {
+    
+    rowTents.clear();
+    columnTents.clear();
+    boardTiles.clear();
+
     std::ifstream file(fileName);
 
     if (!file) {
@@ -72,13 +77,13 @@ Board Input::inputFromFile(std::string fileName) {
         columnTents.push_back(tempNum);
     }
 
-    for (size_t i = 3; i < rows + 3; ++i) {
+    for (size_t i = 0; i < rows; ++i) {
         std::vector<Tile> tempVector;
         for (size_t j = 0; j < columns; ++j) {
-            if (lines[i][j] == '.') {
+            if (lines[i+3][j] == '.') {
                 tempVector.push_back(Tile(Type::NONE, i, j));
             }
-            else if (lines[i][j] == 'T') {
+            else if (lines[i+3][j] == 'T') {
                 tempVector.push_back(Tile(Type::TREE, i, j));
                 ++numTrees;
             }
@@ -86,7 +91,6 @@ Board Input::inputFromFile(std::string fileName) {
                 throw std::runtime_error("Invalid input: Tile is not '.' or 'T'");
             }
         }
-
         boardTiles.push_back(tempVector);
     }
 

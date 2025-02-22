@@ -47,18 +47,8 @@ class Board{
         std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
         void updateTentAdjacencyForCoord(const Coord &coord);
 
-        /**
-         * Finds all violations from the row/column tent count specification
-         */
-        size_t countRowColViolations();
-        /**
-         * Counts all the violations of tents being too close to eachother
-         */
-        size_t countTentViolations();
-        /**
-         * Counts the violations from trees being lonely ;( or trees have too many tents (not cool bro)
-         */
-        size_t countTreeViolations();
+        // Helper functions to update row/col violations for tents
+        void updateRowAndColForTent(const size_t, const size_t);
 
     public:
 
@@ -78,11 +68,18 @@ class Board{
         size_t getViolations();
 
         /**
+         * @brief Places tent based on given coords
+         * @return true
+         * @return false
+         */
+        bool placeTent(Tile&);
+
+        /**
          * @brief (currently) Places tent randomly
          * @return true
          * @return false
          */
-        bool placeTent();
+        bool addTent();
 
         /**
          * @brief (currently) Deletes a random tent
@@ -126,7 +123,12 @@ class Board{
          * 0 Indexed
          * @return Tile 
          */
-        void setTile(Tile&, size_t, size_t);
+        void setTile(const Tile);
+
+        /**
+         * @brief Draws the current state of the board
+         */
+        void drawBoard() const;
 
         void debugPrintViolations();
 };

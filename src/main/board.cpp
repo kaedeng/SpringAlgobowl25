@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <algorithm>
+#include <random>
+#include <iomanip>
 
 /*
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +55,76 @@ void Board::updateTentAdjacencyForCoord(const Coord &coord) {
             tentAdjViolation[neighbor] = newNeighborStatus;
         }
     }
+}
+
+void Board::drawBoard() const {
+    size_t rows = board.size();
+    if (rows == 0) return;
+    size_t cols = board[0].size();
+
+    // Print column numbers on top with a 4-space offset for row numbers.
+    std::cout << "    ";
+    for (size_t j = 0; j < cols; j++) {
+        std::cout << std::setw(2) << colTentNum[j] << " ";
+    }
+    std::cout << std::endl;
+
+    // Print a separating line for clarity.
+    std::cout << "   +";
+    for (size_t j = 0; j < cols; j++) {
+        std::cout << "---";
+    }
+    std::cout << "+\n";
+
+    // Print each row.
+    for (size_t i = 0; i < rows; i++) {
+        // Print the row's tent count on the left.
+        std::cout << std::setw(2) << rowTentNum[i] << " |";
+        for (size_t j = 0; j < cols; j++) {
+            char outputChar;
+            // Determine which character to display based on the tile type.
+            switch (board[i][j].getType()) {
+                case Type::NONE:
+                    outputChar = '.';
+                    break;
+                case Type::TREE:
+                    outputChar = 'T';
+                    break;
+                case Type::TENT: {
+                    char dir = board[i][j].getDir();
+                    // Use lowercase 't' if the direction is 'X', otherwise use the direction character.
+                    outputChar = (dir == 'X') ? 't' : dir;
+                    break;
+                }
+
+            }
+            std::cout << " " << outputChar << " ";
+        }
+        std::cout << "|\n";
+    }
+
+    // Print the bottom border.
+    std::cout << "   +";
+    for (size_t j = 0; j < cols; j++) {
+        std::cout << "---";
+    }
+    std::cout << "+\n";
+}
+
+void Board::updateRowAndColForTent (const size_t r, const size_t c) {
+    // Update row counts.
+    int oldRowCount = currentRowTents[r];
+    currentRowTents[r]--;
+    int oldRowViol = abs((int)(rowTentNum[r] - oldRowCount));
+    int newRowViol = abs((int)(rowTentNum[r] - currentRowTents[r]));
+    rowViolations += (newRowViol - oldRowViol);
+
+    // Update column counts.
+    int oldColCount = currentColTents[c];
+    currentColTents[c]--;
+    int oldColViol = abs((int)(colTentNum[c] - oldColCount));
+    int newColViol = abs((int)(colTentNum[c] - currentColTents[c]));
+    colViolations += (newColViol - oldColViol);
 }
 
 /*
@@ -147,100 +220,102 @@ Board::Board(
 
 }
 
+bool Board::placeTent(Tile& tile) {
+    int r = tile.getCoord().getRow();
+    int c = tile.getCoord().getCol();
 
-bool Board::placeTent() {
-      // Calculate available spaces (total tiles minus trees and already placed tents)
-      int availableSpaces = (rowCount * colCount) - numTrees - (int)tents.size();
+    // Place tent
+    tile.setType(Type::TENT);
 
-      for (auto &row : board) {
-          for (auto &tile : row) {
-              if (availableSpaces > 0 && tile.getType() == Type::NONE) {
-                  // With probability 1/availableSpaces, choose this tile.
-                  if ((std::rand() % availableSpaces) == 0) {
-                      int r = tile.getCoord().getRow();
-                      int c = tile.getCoord().getCol();
-                      // Place tent
-                      tile.setType(Type::TENT);
-  
-                      // Update row counts and corresponding violation difference.
-                      int oldRowCount = currentRowTents[r];
-                      currentRowTents[r]++;
-                      int oldRowViol = abs((int)(rowTentNum[r] - oldRowCount));
-                      int newRowViol = abs((int)(rowTentNum[r] - currentRowTents[r]));
-                      rowViolations += (newRowViol - oldRowViol);
-  
-                      // Update column counts.
-                      int oldColCount = currentColTents[c];
-                      currentColTents[c]++;
-                      int oldColViol = abs((int)(colTentNum[c] - oldColCount));
-                      int newColViol = abs((int)(colTentNum[c] - currentColTents[c]));
-                      colViolations += (newColViol - oldColViol);
-  
-                      Coord newCoord(r, c);
-                      tents.insert(newCoord);
-  
-                      // Update adjacent tents.
-                      updateTentAdjacencyForCoord(newCoord);
-  
-                      // Choose an associated tree.
-                      std::vector<Tile> treeTiles;
-                      if (c - 1 >= 0 && board[r][c - 1].getType() == Type::TREE)
-                          treeTiles.push_back(board[r][c - 1]);
-                      if (c + 1 < colCount && board[r][c + 1].getType() == Type::TREE)
-                          treeTiles.push_back(board[r][c + 1]);
-                      if (r - 1 >= 0 && board[r - 1][c].getType() == Type::TREE)
-                          treeTiles.push_back(board[r - 1][c]);
-                      if (r + 1 < rowCount && board[r + 1][c].getType() == Type::TREE)
-                          treeTiles.push_back(board[r + 1][c]);
-  
-                      Tile bestTree = treeTiles.empty() ? tile : treeTiles[0];
-                      for (Tile &tree : treeTiles) {
-                          if (tree.getNumTent() < bestTree.getNumTent())
-                              bestTree = tree;
-                      }
-  
-                      // If no tree found, mark tent as invalid.
-                      if (treeTiles.empty()) {
-                          tile.setDir('X');
-                          lonelyTentViolations++;
-                      } else {
-                          // Follow original logic:
-                          // If bestTree is above, below, left, or right, set the direction accordingly.
-                          // (For example, if bestTree is at (r-1, c), we set dir to 'L', etc.)
-                          Coord assocTree;
-                          if (bestTree.getCoord() == Coord(r - 1, c)){
-                              tile.setDir('L');
-                              assocTree = Coord(r - 1, c);
-                          }else if (bestTree.getCoord() == Coord(r + 1, c)){
-                              tile.setDir('R');
-                              assocTree = Coord(r + 1, c);
-                          }else if (bestTree.getCoord() == Coord(r, c - 1)){
-                              tile.setDir('U');
-                              assocTree = Coord(r, c - 1);
-                          }else if (bestTree.getCoord() == Coord(r, c + 1)){
-                              tile.setDir('D');
-                              assocTree = Coord(r, c + 1);
-                          }
+    // Update row counts.
+    updateRowAndColForTent(r, c);
 
-                          // Update tree tent count.
-                          int oldCount = treeTentCount[assocTree];
-                          treeTentCount[assocTree] = oldCount + 1;
-                          if (oldCount == 0)
-                              treeViolations--;    // Tree now valid
-                          else if (oldCount == 1)
-                              treeViolations++;    // Now too many tents
-                      }
-                      // Update overall violation count.
-                      violations = rowViolations + colViolations + tentViolations + treeViolations + lonelyTentViolations;
-                      return true;
-                  }
-                  availableSpaces--;
-              }
-          }
-      }
-      return false;
+    Coord newCoord(r, c);
+    tents.insert(newCoord);
+
+    // Update adjacent tents.
+    updateTentAdjacencyForCoord(newCoord);
+
+    // Choose an associated tree.
+    std::vector<Tile> treeTiles;
+    if (c - 1 >= 0 && board[r][c - 1].getType() == Type::TREE)
+        treeTiles.push_back(board[r][c - 1]);
+    if (c + 1 < colCount && board[r][c + 1].getType() == Type::TREE)
+        treeTiles.push_back(board[r][c + 1]);
+    if (r - 1 >= 0 && board[r - 1][c].getType() == Type::TREE)
+        treeTiles.push_back(board[r - 1][c]);
+    if (r + 1 < rowCount && board[r + 1][c].getType() == Type::TREE)
+        treeTiles.push_back(board[r + 1][c]);
+
+    // Shuffle treeTiles to randomize the iteration order.
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(treeTiles.begin(), treeTiles.end(), g);
+
+    Tile bestTree = treeTiles.empty() ? tile : treeTiles[0];
+    for (Tile &tree : treeTiles) {
+        if (treeTentCount[tree.getCoord()] < treeTentCount[bestTree.getCoord()])
+            bestTree = tree;
+    }
+
+
+    
+    // If no tree found, mark tent as invalid.
+    if (treeTiles.empty()) {
+        tile.setDir('X');
+        lonelyTentViolations++;
+    } else {
+        // Follow original logic:
+        // If bestTree is above, below, left, or right, set the direction accordingly.
+        // (For example, if bestTree is at (r-1, c), we set dir to 'L', etc.)
+        Coord assocTree;
+        if (bestTree.getCoord() == Coord(r, c - 1)){
+            tile.setDir('L');
+            assocTree = Coord(r, c - 1);
+        }else if (bestTree.getCoord() == Coord(r, c + 1)){
+            tile.setDir('R');
+            assocTree = Coord(r, c + 1);
+        }else if (bestTree.getCoord() == Coord(r - 1, c)){
+            tile.setDir('U');
+            assocTree = Coord(r - 1, c);
+        }else if (bestTree.getCoord() == Coord(r + 1, c)){
+            tile.setDir('D');
+            assocTree = Coord(r + 1, c);
+        }
+
+        // Update tree tent count.
+        int oldCount = treeTentCount[assocTree];
+        treeTentCount[assocTree] = oldCount + 1;
+        if (oldCount == 0)
+            treeViolations--;    // Tree now valid
+        else if (oldCount == 1)
+            treeViolations++;    // Now too many tents
+    }
+    // Update overall violation count.
+    violations = rowViolations + colViolations + tentViolations + treeViolations + lonelyTentViolations;
+
+    return true;
 }
 
+bool Board::addTent() {
+    // Calculate available spaces (total tiles minus trees and already placed tents)
+    int availableSpaces = (rowCount * colCount) - numTrees - (int)tents.size();
+
+    for (auto &row : board) {
+        for (auto &tile : row) {
+            if (availableSpaces > 0 && tile.getType() == Type::NONE) {
+                // With probability 1/availableSpaces, choose this tile.
+                if ((std::rand() % availableSpaces) == 0) {
+                    if (placeTent(tile)) {
+                        return true;
+                    }
+                }
+                availableSpaces--;
+            }
+        }
+    }
+    return false;
+}
 
 bool Board::removeTent() {
     // Check if there are any tents to remove
@@ -261,18 +336,7 @@ bool Board::removeTent() {
     board[r][c].setType(Type::NONE);
 
     // Update row counts.
-    int oldRowCount = currentRowTents[r];
-    currentRowTents[r]--;
-    int oldRowViol = abs((int)(rowTentNum[r] - oldRowCount));
-    int newRowViol = abs((int)(rowTentNum[r] - currentRowTents[r]));
-    rowViolations += (newRowViol - oldRowViol);
-
-    // Update column counts.
-    int oldColCount = currentColTents[c];
-    currentColTents[c]--;
-    int oldColViol = abs((int)(colTentNum[c] - oldColCount));
-    int newColViol = abs((int)(colTentNum[c] - currentColTents[c]));
-    colViolations += (newColViol - oldColViol);
+    updateRowAndColForTent(r, c);
 
     // Update tent adjacency.
     updateTentAdjacencyForCoord(coord);
@@ -318,8 +382,15 @@ Tile Board::getTile(size_t row, size_t col) const{
     return board[row][col];
 }
 
-void Board::setTile(Tile &tile, size_t row, size_t col){
+void Board::setTile(const Tile tile){
+    size_t col = tile.getCoord().getCol();
+    size_t row = tile.getCoord().getRow();
+
     board[row][col] = tile;
+
+    if (tile.getType() == Type::TENT)
+        placeTent(board[row][col]);
+
 }
 
 void Board::debugPrintViolations(){

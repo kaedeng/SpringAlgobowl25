@@ -14,13 +14,18 @@ class Tile{
     Type type;
     char tentDir = 'X';
     Coord coord;
-    size_t numTent = 0;
 
     public:
 
         Tile(Type tileType, size_t row, size_t col){
             type = tileType;
             coord = Coord(row, col);
+        }    
+
+        Tile(Type tileType, size_t row, size_t col, char tentDir){
+            type = tileType;
+            coord = Coord(row, col);
+            this->tentDir = tentDir;
         }    
 
         Type getType() const { return type; };
@@ -32,6 +37,4 @@ class Tile{
         Coord getCoord() const { return coord; }
         void setCoord(size_t row, size_t col) {coord.setRow(row); coord.setCol(col); }
 
-        size_t getNumTent() const { return numTent; }
-        void setNumTent(size_t numTent) { this->numTent = numTent; }
 };
