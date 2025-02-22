@@ -111,17 +111,25 @@ void Board::drawBoard() const {
     std::cout << "+\n";
 }
 
-void Board::updateRowAndColForTent (const size_t r, const size_t c) {
-    // Update row counts.
+void Board::updateRowAndColForTent (const size_t r, const size_t c, const bool addTent) {
+    
     int oldRowCount = currentRowTents[r];
-    currentRowTents[r]--;
+    int oldColCount = currentColTents[c];
+
+    if(addTent){
+        currentRowTents[r]++;
+        currentColTents[c]++;
+    }else{
+        currentRowTents[r]--;
+        currentColTents[c]--;
+    }
+
+    // Update row counts.
     int oldRowViol = abs((int)(rowTentNum[r] - oldRowCount));
     int newRowViol = abs((int)(rowTentNum[r] - currentRowTents[r]));
     rowViolations += (newRowViol - oldRowViol);
 
     // Update column counts.
-    int oldColCount = currentColTents[c];
-    currentColTents[c]--;
     int oldColViol = abs((int)(colTentNum[c] - oldColCount));
     int newColViol = abs((int)(colTentNum[c] - currentColTents[c]));
     colViolations += (newColViol - oldColViol);
@@ -228,7 +236,7 @@ bool Board::placeTent(Tile& tile) {
     tile.setType(Type::TENT);
 
     // Update row counts.
-    updateRowAndColForTent(r, c);
+    updateRowAndColForTent(r, c, true);
 
     Coord newCoord(r, c);
     tents.insert(newCoord);
@@ -333,10 +341,12 @@ bool Board::removeTent() {
     int r = coord.getRow();
     int c = coord.getCol();
 
+    tents.erase(it);
+
     board[r][c].setType(Type::NONE);
 
     // Update row counts.
-    updateRowAndColForTent(r, c);
+    updateRowAndColForTent(r, c, false);
 
     // Update tent adjacency.
     updateTentAdjacencyForCoord(coord);
@@ -346,10 +356,10 @@ bool Board::removeTent() {
     if (dirChar != 'X') {
         Coord assocTree;
         switch (dirChar) {
-            case 'L': assocTree = Coord(r - 1, c); break;
-            case 'R': assocTree = Coord(r + 1, c); break;
-            case 'U': assocTree = Coord(r, c - 1); break;
-            case 'D': assocTree = Coord(r, c + 1); break;
+            case 'L': assocTree = Coord(r, c - 1); break;
+            case 'R': assocTree = Coord(r, c + 1); break;
+            case 'U': assocTree = Coord(r - 1, c); break;
+            case 'D': assocTree = Coord(r + 1, c); break;
             default: break;
         }
         int oldCount = treeTentCount[assocTree];
@@ -361,6 +371,9 @@ bool Board::removeTent() {
     } else {
         lonelyTentViolations--;
     }
+
+    // Update overall violation count.
+    violations = rowViolations + colViolations + tentViolations + treeViolations + lonelyTentViolations;
 
     return true;
 }

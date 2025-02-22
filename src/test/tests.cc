@@ -241,3 +241,18 @@ TEST(AddTent, TentMoves) {
   EXPECT_EQ(generatedBoard.addTent(), false);
 
 }
+
+TEST(RemoveTent, TentMoves){
+  std::string filePath = "../tests/onetile.test";
+  Input input;
+  Board generatedBoard = input.inputFromFile(filePath);
+
+  generatedBoard.setTile(Tile(Type::TENT, 0, 0));
+
+  generatedBoard.removeTent();
+
+  EXPECT_EQ(generatedBoard.getTile(0, 0).getType(), Type::NONE);
+
+  EXPECT_EQ(generatedBoard.removeTent(), false);
+
+}
