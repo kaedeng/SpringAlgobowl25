@@ -1,3 +1,6 @@
+Solvable link: https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/tents.html#8x8:_dencbbajb_ed,2,0,3,0,3,0,3,1,1,2,2,0,2,1,2,2
+
+
 # Test specific info
 
 Autograder needs to generate a file from the main function

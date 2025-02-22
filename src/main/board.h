@@ -63,7 +63,7 @@ class Board{
             std::vector<std::vector<Tile>> board,
             size_t numTrees
         );
-
+        Board(const Board& other);
         /**
          * @brief Checks for all violations on the board at the current moment
          * @return current number of violations
@@ -143,5 +143,7 @@ class Board{
          * @brief Returns the number of cols
          */
         size_t getNumCols() const { return colCount; };
+
+        std::vector<std::vector<Tile>> getBoard();
         
 };
