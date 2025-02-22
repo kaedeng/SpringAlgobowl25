@@ -17,24 +17,20 @@ class Tile{
 
     public:
 
-        Tile(Type tileType, size_t row, size_t col){
-            type = tileType;
-            coord = Coord(row, col);
-        }    
+        constexpr Tile(Type tileType, size_t row, size_t col)
+            : type(tileType), tentDir('X'), coord(row, col) {}
 
-        Tile(Type tileType, size_t row, size_t col, char tentDir){
-            type = tileType;
-            coord = Coord(row, col);
-            this->tentDir = tentDir;
-        }    
+        constexpr Tile(Type tileType, size_t row, size_t col, char tentDir)
+            : type(tileType), tentDir(tentDir), coord(row, col) {}
 
-        Type getType() const { return type; };
+        // Getters
+        constexpr Type getType() const { return type; }
+        constexpr char getDir() const { return tentDir; }
+        constexpr Coord getCoord() const { return coord; }
+        
+        // Setters
         void setType(Type type){ this->type = type; }
-
-        char getDir() const { return tentDir; };
         void setDir(char tentDir){ this->tentDir = tentDir; }
-
-        Coord getCoord() const { return coord; }
         void setCoord(size_t row, size_t col) {coord.setRow(row); coord.setCol(col); }
 
 };

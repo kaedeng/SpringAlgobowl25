@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     Input inputData;
 
     Board board = inputData.inputFromFile(argv[1]);
-    for (size_t i = 2; i < argc; ++i) {
+    for (int i = 2; i < argc; ++i) {
         clFlags(&inputData, argv[i]);
     }
 

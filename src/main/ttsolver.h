@@ -19,22 +19,19 @@ class TTSolver {
      * Should just pass the information from parsing files to initialize this
      */
     TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate)
-    : gen(std::random_device{}()), 
-    generationSize(generationSize), 
-    maxGenerations(maxGenerations), 
-    startingBoard(board),
-    mutationChance(mutationChance),
-    selectionFactor(selectionFactor),
-    coolingRate(coolingRate)
+    : generationSize(generationSize),
+      maxGenerations(maxGenerations),
+      startingBoard(board),
+      mutationChance(mutationChance),
+      coolingRate(coolingRate),       // coolingRate comes before selectionFactor as declared
+      selectionFactor(selectionFactor)
     {
-        coolingRate = (double)mutationChance/(double)maxGenerations;
-    };
+    coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerations);
+    }
 
     void solve();
 
     private:
-
-    std::mt19937 gen;
 
     // Tune-ables (tuna?)
     size_t generationSize;
@@ -74,17 +71,17 @@ class TTSolver {
     /**
      * @brief Selects the next generation
      */
-    std::vector<Board> selection(std::vector<Board>);
+    std::vector<Board> selection(std::vector<Board>, std::mt19937 &gen);
 
     /**
      * @brief Creates the next generation and mixes genes
      */
-    std::vector<Board> crossover(std::vector<Board>);
+    std::vector<Board> crossover(std::vector<Board>, std::mt19937 &gen);
 
     /**
      * @brief Mutates the next generation
      */
-    void mutation(Board&);
+    void mutation(Board&, std::mt19937 &gen);
 
     std::vector<int> splice(const std::vector<int>& array, int startIndex, int endIndex);
 
