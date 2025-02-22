@@ -34,15 +34,22 @@ std::unordered_set<Coord> Board::getAdjacentTents(const Coord &coord) const {
 
 // Update all tents if they need to. roughly O( 8log(n) + 64log(n) )
 void Board::updateTentAdjacencyForCoord(const Coord &coord) {
-    // Update the current tent's violation status.
-
     std::unordered_set<Coord> adj = getAdjacentTents(coord);
 
-    bool prevStatus = tentAdjViolation[coord];
-    bool newStatus = adj.size() != 0;
-    if (prevStatus != newStatus) {
-        tentViolations += (newStatus ? 1 : -1);
-        tentAdjViolation[coord] = newStatus;
+    // If there's still a tent at coord, update its violation status.
+    if (board[coord.getRow()][coord.getCol()].getType() == Type::TENT) {
+        bool prevStatus = tentAdjViolation[coord];
+        bool newStatus = !adj.empty();
+        if (prevStatus != newStatus) {
+            tentViolations += (newStatus ? 1 : -1);
+            tentAdjViolation[coord] = newStatus;
+        }
+    } else {
+        // If the coordinate was marked as violating, remove that violation before erasing.
+        if (tentAdjViolation.count(coord) && tentAdjViolation[coord] == true) {
+            tentViolations -= 1;
+        }
+        tentAdjViolation.erase(coord);
     }
 
     // Update each neighboring tent's violation status.
@@ -56,6 +63,7 @@ void Board::updateTentAdjacencyForCoord(const Coord &coord) {
         }
     }
 }
+
 
 void Board::drawBoard() const {
     size_t rows = board.size();
@@ -416,8 +424,8 @@ void Board::setTile(const Tile tile){
         placeTent(board[row][col]);
     else if (board[row][col].getType() == Type::TENT && tile.getType() == Type::NONE)
         deleteTent(board[row][col].getCoord());
-    else
-        board[row][col] = tile;
+    //else
+        //board[row][col] = tile;
 
 }
 
@@ -428,6 +436,19 @@ void Board::debugPrintViolations(){
     std::cout << "Tree Violations: " << treeViolations << std::endl;
     std::cout << "Invalid Tent Violations: " << lonelyTentViolations << std::endl;
     std::cout << "Total Violations: " << violations << std::endl;
+    std::cout << "Num Tents: " << tents.size() << std::endl;
+
+    std::cout << violations << std::endl;
+    std::cout << tents.size() << std::endl;
+    
+    for (auto it = tents.begin(); it != tents.end(); it++){
+
+        std::cout << it->getRow()+1 << " " << it->getCol()+1 << " " << board.at(it->getRow()).at(it->getCol()).getDir() << std::endl;
+
+    }
+
+
+    
 }
 
 size_t Board::getViolations() const{
