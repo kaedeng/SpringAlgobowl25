@@ -48,7 +48,7 @@ class Board{
         void updateTentAdjacencyForCoord(const Coord &coord);
 
         // Helper functions to update row/col violations for tents
-        void updateRowAndColForTent(const size_t, const size_t);
+        void updateRowAndColForTent(const size_t, const size_t, const bool);
 
     public:
 
