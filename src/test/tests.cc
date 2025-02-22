@@ -109,10 +109,10 @@ TEST(DebugOutputTest, IOTest){
 }
 
 // Helper function to compare two Board objects.
-bool boardsAreEqual(const Board& boardA, const Board& boardB, size_t rows, size_t cols,
+bool boardsAreEqual(const Board& boardA, const Board& boardB, size_t rows, size_t cols/*,
   const std::vector<size_t>& expectedRowTents,
   const std::vector<size_t>& expectedColTents,
-  size_t expectedNumTrees) {
+  size_t expectedNumTrees*/) {
 
   // Compare board dimensions and each tile type.
   for (size_t i = 0; i < rows; ++i) {
@@ -207,29 +207,25 @@ TEST(AddTent, TentMoves) {
   std::string filePath = "../tests/onetile.test";
   Input input;
   Board generatedBoard = input.inputFromFile(filePath);
-
-  generatedBoard.addTent();
+  std::mt19937 localGen(std::random_device{}());
+  generatedBoard.addTent(localGen);
 
   EXPECT_EQ(generatedBoard.getTile(0, 0).getType(), Type::TENT);
 
   filePath = "../tests/ninetiletree.test";
   generatedBoard = input.inputFromFile(filePath);
 
-  generatedBoard.addTent();
-  generatedBoard.addTent();
-  generatedBoard.addTent();
-  generatedBoard.addTent();
-
-  EXPECT_EQ(generatedBoard.addTent(), false);
-
-  generatedBoard.removeTent();
-  generatedBoard.removeTent();
-  generatedBoard.removeTent();
-  generatedBoard.removeTent();
-
-  EXPECT_EQ(generatedBoard.moveTent(), false);
-
-
+  generatedBoard.addTent(localGen);
+  generatedBoard.addTent(localGen);
+  generatedBoard.addTent(localGen);
+  generatedBoard.addTent(localGen);
+  EXPECT_EQ(generatedBoard.addTent(localGen), false);
+  
+  generatedBoard.removeTent(localGen);
+  generatedBoard.removeTent(localGen);
+  generatedBoard.removeTent(localGen);
+  generatedBoard.removeTent(localGen);
+  EXPECT_EQ(generatedBoard.moveTent(localGen), false);
 }
 
 TEST(RemoveTent, TentMoves){
@@ -237,12 +233,13 @@ TEST(RemoveTent, TentMoves){
   Input input;
   Board generatedBoard = input.inputFromFile(filePath);
 
+  std::mt19937 localGen(std::random_device{}());
   generatedBoard.setTile(Tile(Type::TENT, 0, 0));
 
-  generatedBoard.removeTent();
+  generatedBoard.removeTent(localGen);
 
   EXPECT_EQ(generatedBoard.getTile(0, 0).getType(), Type::NONE);
 
-  EXPECT_EQ(generatedBoard.removeTent(), false);
+  EXPECT_EQ(generatedBoard.removeTent(localGen), false);
 
 }

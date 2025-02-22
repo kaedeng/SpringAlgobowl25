@@ -4,7 +4,8 @@ project(Algobowl-Spring-25)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fPIC -fopenmp")
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -14,14 +15,21 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp src/main/coord.cpp)
+find_package(OpenMP REQUIRED)
+
+add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp)
+
+if(OpenMP_FOUND)
+  target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
+  target_compile_options(main PUBLIC ${OpenMP_CXX_FLAGS})
+endif()
+
 
 enable_testing()
 
 add_executable(
   run_tests
   src/main/board.cpp
-  src/main/coord.cpp
   src/main/input.cpp
   src/main/ttsolver.cpp
   src/test/tests.cc

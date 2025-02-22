@@ -2,12 +2,13 @@
 #include "tile.h"
 #include <vector>
 #include <unordered_set>
+#include <random>
 
 class Board{
     private:
         // Board dimensions
-        inline static size_t rowCount = 0;
-        inline static size_t colCount = 0;
+        size_t rowCount = 0;
+        size_t colCount = 0;
 
         // Board itself, populated by Tiles
         std::vector<std::vector<Tile>> board;
@@ -63,7 +64,10 @@ class Board{
             std::vector<std::vector<Tile>> board,
             size_t numTrees
         );
+
         Board(const Board& other);
+        Board& operator=(const Board& other);
+        
         /**
          * @brief Checks for all violations on the board at the current moment
          * @return current number of violations
@@ -82,7 +86,7 @@ class Board{
          * @return true
          * @return false
          */
-        bool addTent();
+        bool addTent(std::mt19937&);
 
         /**
          * @brief (currently) Deletes a random tent
@@ -90,7 +94,7 @@ class Board{
          * @return true 
          * @return false 
          */
-        bool removeTent();
+        bool removeTent(std::mt19937&);
         
         /**
          * @brief Deletes a tent at the given tile's coords
@@ -105,7 +109,7 @@ class Board{
          * @return true 
          * @return false 
          */
-        bool moveTent();
+        bool moveTent(std::mt19937&);
 
         /*
         /////////////////////////////////////////////////////////////////////////////
@@ -145,5 +149,72 @@ class Board{
         size_t getNumCols() const { return colCount; };
 
         std::vector<std::vector<Tile>> getBoard();
-        
+
+        void printFullBoardInfo() const;
+
+        // Getters and Setters for Board private variables
+
+        // Getter and Setter for rowTentNum
+        const std::vector<size_t>& getRowTentNum() const { return rowTentNum; }
+        void setRowTentNum(const std::vector<size_t>& rtNum) { rowTentNum = rtNum; }
+
+        // Getter and Setter for colTentNum
+        const std::vector<size_t>& getColTentNum() const { return colTentNum; }
+        void setColTentNum(const std::vector<size_t>& ctNum) { colTentNum = ctNum; }
+
+        // Getter and Setter for currentRowTents
+        const std::vector<size_t>& getCurrentRowTents() const { return currentRowTents; }
+        void setCurrentRowTents(const std::vector<size_t>& crt) { currentRowTents = crt; }
+
+        // Getter and Setter for currentColTents
+        const std::vector<size_t>& getCurrentColTents() const { return currentColTents; }
+        void setCurrentColTents(const std::vector<size_t>& cct) { currentColTents = cct; }
+
+        // Getter and Setter for tents
+        const std::unordered_set<Coord>& getTents() const { return tents; }
+        void setTents(const std::unordered_set<Coord>& t) { tents = t; }
+
+        // Getter and Setter for tentAdjViolation
+        const std::unordered_map<Coord, bool>& getTentAdjViolation() const { return tentAdjViolation; }
+        void setTentAdjViolation(const std::unordered_map<Coord, bool>& tav) { tentAdjViolation = tav; }
+
+        // Getter and Setter for treeTentCount
+        const std::unordered_map<Coord, size_t>& getTreeTentCount() const { return treeTentCount; }
+        void setTreeTentCount(const std::unordered_map<Coord, size_t>& ttc) { treeTentCount = ttc; }
+
+        // Getter and Setter for numTrees
+        size_t getNumTrees() const { return numTrees; }
+        void setNumTrees(size_t nt) { numTrees = nt; }
+
+        // Getter and Setter for rowViolations
+        size_t getRowViolations() const { return rowViolations; }
+        void setRowViolations(size_t rv) { rowViolations = rv; }
+
+        // Getter and Setter for colViolations
+        size_t getColViolations() const { return colViolations; }
+        void setColViolations(size_t cv) { colViolations = cv; }
+
+        // Getter and Setter for tentViolations
+        size_t getTentViolations() const { return tentViolations; }
+        void setTentViolations(size_t tv) { tentViolations = tv; }
+
+        // Getter and Setter for treeViolations
+        size_t getTreeViolations() const { return treeViolations; }
+        void setTreeViolations(size_t tv) { treeViolations = tv; }
+
+        // Getter and Setter for lonelyTentViolations
+        size_t getLonelyTentViolations() const { return lonelyTentViolations; }
+        void setLonelyTentViolations(size_t ltv) { lonelyTentViolations = ltv; }
+
+        // Getter and Setter for total violations
+        size_t getTotalViolations() const { return violations; }
+        void setTotalViolations(size_t v) { violations = v; }
+
+        // Getter and Setter for numTiles
+        size_t getNumTiles() const { return numTiles; }
+        void setNumTiles(size_t nt) { numTiles = nt; }
+  
+        std::vector<std::vector<Tile>> getBoard() const {
+            return board;
+        }
 };
