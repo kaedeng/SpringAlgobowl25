@@ -240,6 +240,14 @@ TEST(AddTent, TentMoves) {
 
   EXPECT_EQ(generatedBoard.addTent(), false);
 
+  generatedBoard.removeTent();
+  generatedBoard.removeTent();
+  generatedBoard.removeTent();
+  generatedBoard.removeTent();
+
+  EXPECT_EQ(generatedBoard.moveTent(), false);
+
+
 }
 
 TEST(RemoveTent, TentMoves){
