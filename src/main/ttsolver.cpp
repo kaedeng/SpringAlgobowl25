@@ -22,9 +22,16 @@ void TTSolver::iterate(){
     selection();
     crossover();
     mutation();
+    int bestViolations = currentGeneration[0].getViolations();
+    bestViolationsHistory.push_back(bestViolations);
 }
 
 void TTSolver::selection(){
+
+    size_t totalViolations = 0;
+    for(const auto &currentBoard : currentGeneration){
+        currentBoard.getViolations();
+    }
 
     // Sort the population by fitness
     std::sort(currentGeneration.begin(), currentGeneration.end(), [](const Board& a, const Board& b){return a.getViolations() < b.getViolations();});
@@ -43,7 +50,7 @@ void TTSolver::crossover(){
     std::uniform_int_distribution<size_t> dist(1, numTiles - 1);
 
     // Create two children from the parents using single point crossover (Bad but im lazy)
-    for (size_t i = sameChildrenNum; i < generationSize/2; i += 2){
+    for (size_t i = 0; i < generationSize/2; i += 2){
         Board& parent1 = currentGeneration[i];
         Board& parent2 = currentGeneration[i+1];
 
@@ -83,15 +90,17 @@ void TTSolver::mutation(){
 
     // Randomly mutate each child
     for (int i = 0; i < currentGeneration.size(); i++){
-        int mutationType = random(gen);
-        if (mutationType == 0 && !currentGeneration[i].addTent()){
-            currentGeneration[i].removeTent();
-        }
-        else if (mutationType == 1 && !currentGeneration[i].removeTent()){
-            currentGeneration[i].addTent();
-        }
-        else{
-            currentGeneration[i].moveTent();
+        for (int j = 0; j < 1; j++){
+            int mutationType = random(gen);
+            if (mutationType == 0 && !currentGeneration[i].addTent()){
+                currentGeneration[i].removeTent();
+            }
+            else if (mutationType == 1 && !currentGeneration[i].removeTent()){
+                currentGeneration[i].addTent();
+            }
+            else{
+                currentGeneration[i].moveTent();
+            }
         }
     }
 

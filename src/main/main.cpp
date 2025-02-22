@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     }
 
     // generationSize, maxGenerations, sameChildrenNum
-    TTSolver solver(100, 1000, 10, board);
+    TTSolver solver(300, 100, 150, board);
     solver.solve();
 
     return 0;

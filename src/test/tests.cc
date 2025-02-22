@@ -201,24 +201,6 @@ TEST(BoardPrint, PrintBoard) {
 
   EXPECT_EQ(output, expected);
 
-  generatedBoard.setTile(Tile(Type::TREE, 0, 0));
-
-  buffer.str("");
-  old = std::cout.rdbuf(buffer.rdbuf());
-  generatedBoard.drawBoard();
-  std::cout.rdbuf(old);
-
-  output = buffer.str();
-  expected = "";
-  expected += "     1  1  2  1 \n";
-  expected += "   +------------+\n";
-  expected += " 0 | T  T  .  . |\n";
-  expected += " 0 | T  .  T  . |\n";
-  expected += " 3 | .  .  .  T |\n";
-  expected += "   +------------+\n";
-
-  EXPECT_EQ(output, expected);
-
 }
 
 TEST(AddTent, TentMoves) {

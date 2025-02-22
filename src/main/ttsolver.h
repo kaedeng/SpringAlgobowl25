@@ -36,6 +36,7 @@ class TTSolver {
     size_t numCols;
 
     std::vector<Board> currentGeneration{generationSize, startingBoard};
+    std::vector<int> bestViolationsHistory;
 
     /**
      * @brief Creates the output file with the current iteration of the chart.
