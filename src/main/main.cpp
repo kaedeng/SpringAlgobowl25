@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     }
 
     // generationSize, maxGenerations, board, chance for mutation (%), selectionFactor, cooling rate
-    TTSolver solver(300, 100, board, 80, 5, 0.990);
+    TTSolver solver(300, 100, board, 80, 5, 0.995);
     solver.solve();
 
     return 0;
