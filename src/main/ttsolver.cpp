@@ -168,7 +168,7 @@ Running and Output
 // Solve function should be the only one you run
 void TTSolver::solve(){
     numTiles = numRows * numCols;
-
+    initialize();
     // Loop for a given number of runs
     for(size_t i = 0; i < maxGenerations; i++){
         iterate();
