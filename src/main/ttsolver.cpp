@@ -12,7 +12,6 @@ void TTSolver::iterate() {
     // 1) Copy current generation to parentGeneration
     std::vector<Board> parentGeneration = currentGeneration;
 
-    // 2) Sort parentGeneration by fitness (violations). 
     //    The best (fewest violations) will be at index 0,1,2,...
     std::partial_sort(
         parentGeneration.begin(),
@@ -23,12 +22,11 @@ void TTSolver::iterate() {
         }
     );
 
-    // 3) Elitism: Copy the top 'elitismNum' boards from parentGeneration into currentGeneration.
+    // elitism copies best boards from parentGeneration to currentGeneration
     for (size_t i = 0; i < elitismNum; i++) {
         currentGeneration[i] = parentGeneration[i];
     }
 
-    // 4) Parallel for the *rest* of the population
     unsigned baseSeed = std::random_device{}();
 
     #pragma omp parallel
@@ -89,40 +87,40 @@ std::vector<Board> TTSolver::selection(std::vector<Board> parentPopulation, std:
 
 std::vector<Board> TTSolver::crossover(std::vector<Board> parents, std::mt19937 &gen){
     std::vector<Board> children;
+    children.reserve(2);
 
-    // Crossover Point
-    std::uniform_int_distribution<size_t> dist(1, numTiles - 1);
-    size_t crossoverPoint = dist(gen);
-
-    // Create two children from the parents using single point crossover (Bad but im lazy)
     Board parent1 = parents[0];
     Board parent2 = parents[1];
 
-    // Create the children
+    // Make child boards as copies of the parents
     Board child1 = parent1;
     Board child2 = parent2;
 
-    
-    // Swap the tiles
-    size_t currentTileNum = 0;
-    for (size_t j = 0; j < numRows; j++){
-        for (size_t k = 0; k < numCols; k++){
-            
-            if(child1.getTile(j, k).getType() != parent2.getTile(j, k).getType() && currentTileNum < crossoverPoint){
-                child1.setTile(parent2.getTile(j, k));
-            }
-            else if(child2.getTile(j, k).getType() != parent1.getTile(j, k).getType() && currentTileNum >= crossoverPoint){
-                child2.setTile(parent1.getTile(j, k));
-            }
+    // Choose a crossover point
+    std::uniform_int_distribution<size_t> dist(0, numTiles);
+    size_t crossoverPoint = dist(gen);
 
-            currentTileNum++;
+    size_t tileCount = 0;
+    for (size_t r = 0; r < numRows; r++) {
+        for (size_t c = 0; c < numCols; c++) {
+            if (tileCount >= crossoverPoint) {
+
+                Tile p1Tile = parent1.getTile(r, c);
+                Tile p2Tile = parent2.getTile(r, c);
+
+                if (child1.getTile(r, c).getType() != p2Tile.getType() || (child1.getTile(r, c).getType() == Type::TENT && p2Tile.getType() == Type::TENT) && child1.getTile(r, c).getDir() != p2Tile.getDir()) {
+                    child1.setTile(p2Tile);
+                }
+                if (child2.getTile(r, c).getType() != p1Tile.getType() || (child2.getTile(r, c).getType() == Type::TENT && p1Tile.getType() == Type::TENT) && child2.getTile(r, c).getDir() != p1Tile.getDir()) {
+                    child2.setTile(p1Tile);
+                }
+            }
+            tileCount++;
         }
     }
 
-    // Add the children to the population
     children.push_back(child1);
     children.push_back(child2);
-
     return children;
 }
 
@@ -161,15 +159,17 @@ void TTSolver::initialize(){
     
     // Create a random number generator.
     std::mt19937 gen(std::random_device{}());
+
+    std::uniform_int_distribution<int> dist(0, static_cast<int>(numTiles)/2);
     
-    // int count = 1;
-    // const double k = 1.0/currentGeneration.size();
-    // for (auto &board : currentGeneration) {
-    //     for (int i = 0; i < std::max((int)(count * k * 32), (int)(numTiles*0.75)); ++i) {
-    //         mutation(board, gen);
-    //     }
-    //     count++;
-    // }
+    for (auto &board : currentGeneration) {
+        int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
+        for (int i = 0; i < randomNumberOfTents; ++i) {
+            board.addTent(gen);
+        }
+        board.drawBoard();
+    }
+    
 }
 
 /*
@@ -188,6 +188,8 @@ void TTSolver::solve(){
         //mutationChance *= coolingRate;
         std::cout << "iteration: " << i << std::endl;
 
+        currentGeneration[0].drawBoard();
+
         std::cout << currentGeneration[0].getViolations() << std::endl;
     }
 
@@ -200,8 +202,6 @@ bool TTSolver::createOutput(){
             return a.getViolations() < b.getViolations();
         }
     );
-    
-    //if(currentGeneration[0].getViolations() < bestBoard.getViolations()) bestBoard = currentGeneration[0];
 
     currentGeneration[0].drawBoard();
     currentGeneration[0].debugPrintViolations();
