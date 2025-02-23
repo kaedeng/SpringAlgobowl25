@@ -8,37 +8,50 @@
 #include <iostream>
 
 // A single iteration of the solving function
-void TTSolver::iterate(){
+void TTSolver::iterate() {
+    // 1) Copy current generation to parentGeneration
+    std::vector<Board> parentGeneration = currentGeneration;
 
-    // Current generation becomes the parent generation (need to deep copy it)
-    std::vector<Board> parentGeneration = std::vector<Board>(currentGeneration);
+    // 2) Sort parentGeneration by fitness (violations). 
+    //    The best (fewest violations) will be at index 0,1,2,...
+    std::partial_sort(
+        parentGeneration.begin(),
+        parentGeneration.begin() + elitismNum,
+        parentGeneration.end(),
+        [](const Board &a, const Board &b) {
+            return a.getViolations() < b.getViolations();
+        }
+    );
 
+    // 3) Elitism: Copy the top 'elitismNum' boards from parentGeneration into currentGeneration.
+    for (size_t i = 0; i < elitismNum; i++) {
+        currentGeneration[i] = parentGeneration[i];
+    }
+
+    // 4) Parallel for the *rest* of the population
     unsigned baseSeed = std::random_device{}();
 
     #pragma omp parallel
     {
-
         unsigned seed = baseSeed + omp_get_thread_num();
         std::mt19937 localGen(seed);
 
+        // Fill from 'elitismNum' onward
         #pragma omp for
-        for(size_t i = 0; i < generationSize; i+=2){
-            
-            // Clone and select parents so it doesn't get changed
+        for (size_t i = elitismNum; i < generationSize; i += 2) {
+            // Perform selection, crossover, and mutation 
             std::vector<Board> parents = selection(parentGeneration, localGen);
             std::vector<Board> children = crossover(parents, localGen);
-            for(auto& child : children) {mutation(child, localGen);}
+            for (auto &child : children) {
+                mutation(child, localGen);
+            }
 
             currentGeneration[i] = children[0];
-
-            // If population is odd
-            if (i != generationSize - 1) {
+            if (i + 1 < generationSize) {
                 currentGeneration[i + 1] = children[1];
             }
         }
-
     }
-
 }
 
 /*
@@ -52,23 +65,23 @@ Runs on every iteration
 std::vector<Board> TTSolver::selection(std::vector<Board> parentPopulation, std::mt19937 &gen){
     std::vector<Board> parents;
 
-    // Tune-able! Lambda function can be based on more than just the violations
-    std::sort(parentPopulation.begin(), parentPopulation.end(), 
-        [](const Board& a, const Board& b){
-            return a.getViolations() < b.getViolations();
-        }
-    );
-
-    // Keep track of the best board
-    if(parentPopulation[0].getViolations() < bestBoard.getViolations()) bestBoard = parentPopulation[0];
-
-    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    // std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::uniform_int_distribution<size_t> dist(0, parentPopulation.size() - 1);
     for (int i = 0; i < 2; i++) {
-        double r = dist(gen);
-        // Raise to a power > 1 to bias toward 0.
-        // Can alternatively use the selection factor as r
-        int index = static_cast<int>(parentPopulation.size() * std::pow(r, 2));
-        parents.push_back(parentPopulation[index]);
+        // Num of people in tournament is j < 2
+        Board tournamentWinner = parentPopulation[0];
+        for (int j = 0; j < 2; j++){
+            int index = dist(gen);
+            if(j == 0) 
+                // First one is default the winner
+                tournamentWinner = parentPopulation[index];
+            else if(parentPopulation[index].getViolations() < tournamentWinner.getViolations())
+                // If the new one is better
+                tournamentWinner = parentPopulation[index];
+            
+        }
+        parents.push_back(tournamentWinner);
+
     }
 
     return parents;
@@ -149,14 +162,14 @@ void TTSolver::initialize(){
     // Create a random number generator.
     std::mt19937 gen(std::random_device{}());
     
-    int count = 1;
-    const double k = 1/currentGeneration.size();
-    for (auto &board : currentGeneration) {
-        for (int i = 0; i < (int)(count * k * board.getNumTiles()); ++i) {
-            mutation(board, gen);
-        }
-        count++;
-    }
+    // int count = 1;
+    // const double k = 1.0/currentGeneration.size();
+    // for (auto &board : currentGeneration) {
+    //     for (int i = 0; i < std::max((int)(count * k * 32), (int)(numTiles*0.75)); ++i) {
+    //         mutation(board, gen);
+    //     }
+    //     count++;
+    // }
 }
 
 /*
@@ -172,13 +185,8 @@ void TTSolver::solve(){
     // Loop for a given number of runs
     for(size_t i = 0; i < maxGenerations; i++){
         iterate();
-        mutationChance *= coolingRate;
+        //mutationChance *= coolingRate;
         std::cout << "iteration: " << i << std::endl;
-        std::sort(currentGeneration.begin(), currentGeneration.end(), 
-            [](const Board& a, const Board& b) {
-                return a.getViolations() < b.getViolations();
-            }
-        );
 
         std::cout << currentGeneration[0].getViolations() << std::endl;
     }
@@ -193,9 +201,9 @@ bool TTSolver::createOutput(){
         }
     );
     
-    if(currentGeneration[0].getViolations() < bestBoard.getViolations()) bestBoard = currentGeneration[0];
+    //if(currentGeneration[0].getViolations() < bestBoard.getViolations()) bestBoard = currentGeneration[0];
 
-    bestBoard.drawBoard();
-    bestBoard.debugPrintViolations();
+    currentGeneration[0].drawBoard();
+    currentGeneration[0].debugPrintViolations();
     return true;
 };

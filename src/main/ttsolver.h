@@ -18,13 +18,14 @@ class TTSolver {
      * @brief Construct a new TTSolver object
      * Should just pass the information from parsing files to initialize this
      */
-    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate)
+    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate, int elitismNum)
     : generationSize(generationSize),
       maxGenerations(maxGenerations),
       startingBoard(board),
       mutationChance(mutationChance),
       coolingRate(coolingRate),       // coolingRate comes before selectionFactor as declared
-      selectionFactor(selectionFactor)
+      selectionFactor(selectionFactor),
+      elitismNum(elitismNum)
     {
     coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerations);
     }
@@ -38,6 +39,7 @@ class TTSolver {
     size_t maxGenerations;
     Board startingBoard;
     int mutationChance;
+    int elitismNum;
     double coolingRate; // Should be like 0.98 or something high
 
     int selectionFactor;
