@@ -26,7 +26,7 @@ std::unordered_set<Coord> Board::getAdjacentTents(const Coord &coord) const {
     
     for (auto &dir : DIRS) {
         Coord adjacent(coord.getRow() + dir.getRow(), coord.getCol() + dir.getCol());
-        if (tents.find(adjacent) != tents.end())
+        if (tentTiles.contains(adjacent))
             adj.insert(adjacent);
     }
     return adj;
@@ -191,8 +191,8 @@ Board::Board(
             // If the current tile is a tent
             if(board[i][j].getType() == Type::TENT){
                 Coord coord = board[i][j].getCoord();
-                if (tents.find(coord) == tents.end()) {
-                    tents.insert(coord);
+                if (!tentTiles.contains(coord)) {
+                    tentTiles.insert(coord);
                     currentRowTents[i]++;
                     currentColTents[j]++;
 
@@ -247,7 +247,7 @@ Board::Board(const Board& other) {
     colTentNum = other.getColTentNum();
     currentRowTents = other.getCurrentRowTents();
     currentColTents = other.getCurrentColTents();
-    tents = other.getTents();
+    tentTiles = other.getTentTilesData();
     tentAdjViolation = other.getTentAdjViolation();
     treeTentCount = other.getTreeTentCount();
     numTrees = other.getNumTrees();
@@ -270,7 +270,7 @@ Board& Board::operator=(const Board& other) {
         colTentNum = other.getColTentNum();
         currentRowTents = other.getCurrentRowTents();
         currentColTents = other.getCurrentColTents();
-        tents = other.getTents();
+        tentTiles = other.getTentTilesData();
         tentAdjViolation = other.getTentAdjViolation();
         treeTentCount = other.getTreeTentCount();
         numTrees = other.getNumTrees();
@@ -298,7 +298,7 @@ bool Board::placeTent(Tile& tile) {
     updateRowAndColForTent(r, c, true);
 
     Coord newCoord(r, c);
-    tents.insert(newCoord);
+    tentTiles.insert(newCoord);
 
     // Update adjacent tents.
     updateTentAdjacencyForCoord(newCoord);
@@ -371,31 +371,25 @@ bool Board::addTent(std::mt19937 &gen) {
 
     std::uniform_int_distribution<int> dist(0, openTiles.size() - 1);
     std::optional<Coord> coord = openTiles.getTileAtIndex(dist(gen));
-        if (coord != std::nullopt) {
-            if (placeTent(board[coord.value().getRow()][coord.value().getCol()]));
+    if (coord != std::nullopt) {
+        if (placeTent(board[coord.value().getRow()][coord.value().getCol()]));
             return true;
-        }
+    }
 
     return false;
 }
 
 bool Board::removeTent(std::mt19937 &gen) {
     // Check if there are any tents to remove
-    if (tents.empty()) {
+    if (tentTiles.size() == 0) {
         return false; // No tents available to remove
     }
-
-    // Select a random tent to remove
-    std::uniform_int_distribution<int> dist(0, static_cast<int>(tents.size()) - 1);
-    int randCoord = dist(gen);
-    auto it = tents.begin();
-    std::advance(it, randCoord);
-
-    // Get tent coords
-    Coord coord = *it;
     
-    // Remove tent
-    deleteTent(coord);
+    // Select a random tent to remove
+    std::uniform_int_distribution<int> dist(0, static_cast<int>(tentTiles.size()) - 1);
+    int randCoord = dist(gen);
+    
+    deleteTent(tentTiles.getTileAtIndex(randCoord).value());
 
     return true;
 }
@@ -405,7 +399,7 @@ bool Board::deleteTent(Coord coord) {
     int r = coord.getRow();
     int c = coord.getCol();
 
-    tents.erase(coord);
+    tentTiles.remove(coord);
     openTiles.insert(coord);
 
     board[r][c].setType(Type::NONE);
@@ -481,8 +475,8 @@ void Board::printFullBoardInfo() const {
 
     // Print set of tent coordinates.
     std::cout << "Tents (Coordinates):\n";
-    for (const auto &coord : tents)
-        std::cout << "(" << coord.getRow() << ", " << coord.getCol() << ") ";
+    for (int i = 0; i < tentTiles.size(); i++)
+        std::cout << "(" << tentTiles.getTileAtIndex(i).value().getRow() << ", " << tentTiles.getTileAtIndex(i).value().getCol() << ") ";
     std::cout << "\n\n";
 
     // Print tent adjacency violations.
@@ -535,14 +529,16 @@ void Board::debugPrintViolations(){
     std::cout << "Tree Violations: " << treeViolations << std::endl;
     std::cout << "Invalid Tent Violations: " << lonelyTentViolations << std::endl;
     std::cout << "Total Violations: " << violations << std::endl;
-    std::cout << "Num Tents: " << tents.size() << std::endl;
+    std::cout << "Num Tents: " << tentTiles.size() << std::endl;
 
     std::cout << violations << std::endl;
-    std::cout << tents.size() << std::endl;
+    std::cout << tentTiles.size() << std::endl;
     
-    for (auto it = tents.begin(); it != tents.end(); it++){
+    for (int i = 0; i < tentTiles.size(); i++){
 
-        std::cout << it->getRow()+1 << " " << it->getCol()+1 << " " << board.at(it->getRow()).at(it->getCol()).getDir() << std::endl;
+        Coord tentCoord = tentTiles.getTileAtIndex(i).value();
+
+        std::cout << tentCoord.getRow()+1 << " " << tentCoord.getCol()+1 << " " << board.at(tentCoord.getRow()).at(tentCoord.getCol()).getDir() << std::endl;
 
     }
 

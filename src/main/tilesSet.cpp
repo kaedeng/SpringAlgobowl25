@@ -1,7 +1,7 @@
-#include "opentiles.h"
+#include "tilesSet.h"
 #include <optional>
 
-bool OpenTiles::insert(const Coord c){
+bool TilesSet::insert(const Coord c){
     if (tileIndex.find(c) != tileIndex.end())
                 return false; // Tile already open.
             tiles.push_back(c);
@@ -9,7 +9,7 @@ bool OpenTiles::insert(const Coord c){
             return true;
 }
 
-bool OpenTiles::remove(const Coord c) {
+bool TilesSet::remove(const Coord c) {
     auto it = tileIndex.find(c);
     if (it == tileIndex.end())
         return false; // Tile not found.
@@ -26,16 +26,16 @@ bool OpenTiles::remove(const Coord c) {
     return true;
 }
 
-std::optional<Coord> OpenTiles::getTileAtIndex(size_t index) const {
+std::optional<Coord> TilesSet::getTileAtIndex(size_t index) const {
     if (index >= tiles.size())
         return std::nullopt;
     return std::optional<Coord>{tiles[index]};
 }
 
-bool OpenTiles::contains(const Coord &c) const {
+bool TilesSet::contains(const Coord &c) const {
     return tileIndex.find(c) != tileIndex.end();
 }
 
-size_t OpenTiles::size() const {
+size_t TilesSet::size() const {
     return tiles.size();
 }

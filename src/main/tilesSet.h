@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <optional>
 
-class OpenTiles {
+class TilesSet {
     private:
         // Vector to store open tiles.
         std::vector<Coord> tiles;

@@ -1,6 +1,6 @@
 #pragma once
 #include "tile.h"
-#include "opentiles.h"
+#include "tilesSet.h"
 #include <vector>
 #include <unordered_set>
 #include <random>
@@ -22,8 +22,6 @@ class Board{
         std::vector<size_t> currentRowTents;
         std::vector<size_t> currentColTents;
         
-        // Set of all existing tents, use to check for tent-tent violations
-        std::unordered_set<Coord> tents;
         // Check if the tent already violates a tent-tent violation
         std::unordered_map<Coord, bool> tentAdjViolation;
 
@@ -48,7 +46,8 @@ class Board{
         // Num tiles
         size_t numTiles = rowCount * colCount;
         
-        OpenTiles openTiles;
+        TilesSet openTiles;
+        TilesSet tentTiles;
 
         // Helper functions to update a tent’s adjacent violation status.
         std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
@@ -173,10 +172,6 @@ class Board{
         const std::vector<size_t>& getCurrentColTents() const { return currentColTents; }
         void setCurrentColTents(const std::vector<size_t>& cct) { currentColTents = cct; }
 
-        // Getter and Setter for tents
-        const std::unordered_set<Coord>& getTents() const { return tents; }
-        void setTents(const std::unordered_set<Coord>& t) { tents = t; }
-
         // Getter and Setter for tentAdjViolation
         const std::unordered_map<Coord, bool>& getTentAdjViolation() const { return tentAdjViolation; }
         void setTentAdjViolation(const std::unordered_map<Coord, bool>& tav) { tentAdjViolation = tav; }
@@ -217,7 +212,9 @@ class Board{
         size_t getNumTiles() const { return numTiles; }
         void setNumTiles(size_t nt) { numTiles = nt; }
   
-        OpenTiles getOpenTilesData() const { return openTiles; }
+        TilesSet getOpenTilesData() const { return openTiles; }
+
+        TilesSet getTentTilesData() const { return tentTiles; }
 
         std::vector<std::vector<Tile>> getBoard() const {
             return board;
