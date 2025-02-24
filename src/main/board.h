@@ -162,7 +162,7 @@ class Board{
         // Bitset operations
         void bitSetTent(const Coord&);
         void bitClearTent(const Coord&);
-        size_t countXorBits(const std::bitset<MAX_BOARD_SIZE>&);
+        size_t countXorBits(const std::bitset<MAX_BOARD_SIZE>&) const;
         std::bitset<MAX_BOARD_SIZE> getBitBoard() const;
 
         // Getters and Setters for Board private variables

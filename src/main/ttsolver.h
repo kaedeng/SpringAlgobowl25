@@ -18,17 +18,27 @@ class TTSolver {
      * @brief Construct a new TTSolver object
      * Should just pass the information from parsing files to initialize this
      */
-    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate, int elitismNum)
+    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate, int elitismNum, double diversityWeight)
     : generationSize(generationSize),
       maxGenerations(maxGenerations),
       startingBoard(board),
       mutationChance(mutationChance),
       coolingRate(coolingRate),       // coolingRate comes before selectionFactor as declared
       selectionFactor(selectionFactor),
-      elitismNum(elitismNum)
+      elitismNum(elitismNum),
+      diversityWeight(diversityWeight)
     {
     coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerations);
     }
+
+    // A helper struct to hold each individual’s NSGA-II attributes.
+  struct NSGAIndividual {
+    const Board* board;   // Pointer to the board in the population.
+    double f1;            // Objective 1: fitness (violations; lower is better).
+    double f2;            // Objective 2: diversity measure (niche count; lower is better).
+    int rank;             // Non-dominated rank (1 is best).
+    double crowdingDistance; // Crowding distance (higher is preferred if rank ties).
+  };
 
     void solve();
 
@@ -38,6 +48,7 @@ class TTSolver {
     size_t generationSize;
     size_t maxGenerations;
     Board startingBoard;
+    double diversityWeight;
     int mutationChance;
     int elitismNum;
     double coolingRate; // Should be like 0.98 or something high
@@ -75,12 +86,12 @@ class TTSolver {
     /**
      * @brief Selects the next generation
      */
-    std::vector<Board> selection(std::vector<Board>, std::mt19937 &gen);
+    std::vector<Board> selection(const std::vector<Board>&, const std::vector<double>&, std::mt19937 &gen);
 
     /**
      * @brief Creates the next generation and mixes genes
      */
-    std::vector<Board> crossover(std::vector<Board>, std::mt19937 &gen);
+    std::vector<Board> crossover(const std::vector<Board>&, std::mt19937 &gen);
 
     /**
      * @brief Mutates the next generation
@@ -90,5 +101,9 @@ class TTSolver {
     void initialize();
 
     std::vector<int> splice(const std::vector<int>& array, int startIndex, int endIndex);
+
+    double weightedPairScore(Board &a,Board &b);
+
+    std::vector<Board> selectionNSGA(const std::vector<Board>& parentPopulation, const std::vector<NSGAIndividual>& nsgaIndividuals, std::mt19937 &gen);
 
 };
