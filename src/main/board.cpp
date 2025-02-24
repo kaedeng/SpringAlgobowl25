@@ -365,22 +365,17 @@ bool Board::placeTent(Tile& tile) {
 }
 
 bool Board::addTent(std::mt19937 &gen) {
-    
-    int availableSpaces = (rowCount * colCount) - numTrees - static_cast<int>(tents.size());
 
-    for (auto &row : board) {
-        for (auto &tile : row) {
-            if (availableSpaces > 0 && tile.getType() == Type::NONE) {
-                std::uniform_int_distribution<int> dist(0, availableSpaces - 1);
-                if (dist(gen) == 0) {
-                    if (placeTent(tile)) {
-                        return true;
-                    }
-                }
-                availableSpaces--;
-            }
+    if(openTiles.size() == 0)
+        return false;
+
+    std::uniform_int_distribution<int> dist(0, openTiles.size() - 1);
+    std::optional<Coord> coord = openTiles.getTileAtIndex(dist(gen));
+        if (coord != std::nullopt) {
+            if (placeTent(board[coord.value().getRow()][coord.value().getCol()]));
+            return true;
         }
-    }
+
     return false;
 }
 
