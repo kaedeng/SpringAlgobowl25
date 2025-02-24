@@ -60,32 +60,54 @@ Runs on every iteration
 
 // Sorting algo for remembering: 
 // std::sort(currentGeneration.begin(), currentGeneration.end(), [](const Board& a, const Board& b){return a.getViolations() < b.getViolations();});
-std::vector<Board> TTSolver::selection(std::vector<Board> parentPopulation, std::mt19937 &gen){
-    std::vector<Board> parents;
-
-    // std::uniform_real_distribution<double> dist(0.0, 1.0);
+std::vector<Board> TTSolver::selection(const std::vector<Board>& parentPopulation, std::mt19937 &gen){
+    std::vector<Board> parents1;
+    std::vector<Board> parents2;
     std::uniform_int_distribution<size_t> dist(0, parentPopulation.size() - 1);
+
+    // First tournament to form the first candidate pair.
     for (int i = 0; i < 2; i++) {
-        // Num of people in tournament is j < 2
-        Board tournamentWinner = parentPopulation[0];
+        Board tournamentWinner = parentPopulation[dist(gen)];
+        // Run a mini tournament of size 2 (you can increase the tournament size as needed)
         for (int j = 0; j < 2; j++){
             int index = dist(gen);
-            if(j == 0) 
-                // First one is default the winner
+            if (parentPopulation[index].getViolations() < tournamentWinner.getViolations())
                 tournamentWinner = parentPopulation[index];
-            else if(parentPopulation[index].getViolations() < tournamentWinner.getViolations())
-                // If the new one is better
-                tournamentWinner = parentPopulation[index];
-            
         }
-        parents.push_back(tournamentWinner);
-
+        parents1.push_back(tournamentWinner);
     }
 
-    return parents;
+    // Second tournament to form the second candidate pair.
+    for (int i = 0; i < 2; i++) {
+        Board tournamentWinner = parentPopulation[dist(gen)];
+        for (int j = 0; j < 2; j++){
+            int index = dist(gen);
+            if (parentPopulation[index].getViolations() < tournamentWinner.getViolations())
+                tournamentWinner = parentPopulation[index];
+        }
+        parents2.push_back(tournamentWinner);
+    }
+
+    double score1 = weightedPairScore(parents1[0], parents1[1]);
+    double score2 = weightedPairScore(parents2[0], parents2[1]);
+
+    // Lower score better pair
+    if (score1 < score2)
+        return parents1;
+    else
+        return parents2;
 }
 
-std::vector<Board> TTSolver::crossover(std::vector<Board> parents, std::mt19937 &gen){
+double TTSolver::weightedPairScore(Board &a, Board &b) {
+    // Average the violations of both boards (lower is better)
+    double avgViolations = (a.getViolations() + b.getViolations()) / 2.0;
+    // Get the Hamming distance (diversity) between the two boards
+    double diversity = a.countXorBits(b.getBitBoard());
+    // Lower score is better, so subtract diversity-weight
+    return avgViolations - diversityWeight * diversity;
+}
+
+std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::mt19937 &gen){
     std::vector<Board> children;
     children.reserve(2);
 
@@ -160,7 +182,7 @@ void TTSolver::initialize(){
     // Create a random number generator.
     std::mt19937 gen(std::random_device{}());
 
-    std::uniform_int_distribution<int> dist(0, static_cast<int>(startingBoard.getOpenTilesData().size())/2);
+    std::uniform_int_distribution<int> dist(0, static_cast<int>(numTiles)/2);
     
     for (auto &board : currentGeneration) {
         int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
