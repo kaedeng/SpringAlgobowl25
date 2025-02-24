@@ -178,18 +178,20 @@ void TTSolver::initialize(){
     numRows = startingBoard.getNumRows();
     numCols = startingBoard.getNumCols();
     numTiles = numRows * numCols;
-    
-    // Create a random number generator.
-    std::mt19937 gen(std::random_device{}());
-
     std::uniform_int_distribution<int> dist(0, static_cast<int>(numTiles)/2);
-    
-    for (auto &board : currentGeneration) {
-        int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
-        for (int i = 0; i < randomNumberOfTents; ++i) {
-            board.addTent(gen);
+    #pragma omp parallel
+    {
+        // Create a random number generator.
+        std::mt19937 gen(std::random_device{}());
+
+        #pragma omp for
+        for (auto &board : currentGeneration) {
+            int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
+            for (int i = 0; i < randomNumberOfTents; ++i) {
+                board.addTent(gen);
+            }
+            board.drawBoard();
         }
-        board.drawBoard();
     }
     
 }
@@ -212,9 +214,13 @@ void TTSolver::solve(){
         currentGeneration[0].drawBoard();
 
         std::cout << "iteration: " << i << std::endl;
-
-        std::cout << currentGeneration[0].getViolations() << std::endl;
-
+        
+        size_t minViolations = currentGeneration[0].getViolations();  
+        std::cout << minViolations << std::endl;
+        if(minViolations == 0){
+            createOutput();
+            return;
+        }
     }
 
     createOutput();
