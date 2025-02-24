@@ -286,7 +286,7 @@ Board& Board::operator=(const Board& other) {
     return *this;
 }
 
-bool Board::placeTent(Tile& tile) {
+bool Board::placeTent(Tile& tile, std::mt19937 gen) {
     int r = tile.getCoord().getRow();
     int c = tile.getCoord().getCol();
 
@@ -316,15 +316,8 @@ bool Board::placeTent(Tile& tile) {
         treeTiles.push_back(board[r + 1][c]);
 
     // Shuffle treeTiles to randomize the iteration order.
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(treeTiles.begin(), treeTiles.end(), g);
-
+    std::uniform_int_distribution<> dis(0, treeTiles.size() - 1);
     Tile bestTree = treeTiles.empty() ? tile : treeTiles[0];
-    for (Tile &tree : treeTiles) {
-        if (treeTentCount[tree.getCoord()] < treeTentCount[bestTree.getCoord()])
-            bestTree = tree;
-    }
 
 
     
@@ -333,6 +326,7 @@ bool Board::placeTent(Tile& tile) {
         tile.setDir('X');
         lonelyTentViolations++;
     } else {
+        bestTree = treeTiles[dis(gen)];
         // Follow original logic:
         // If bestTree is above, below, left, or right, set the direction accordingly.
         // (For example, if bestTree is at (r-1, c), we set dir to 'L', etc.)
@@ -373,7 +367,7 @@ bool Board::addTent(std::mt19937 &gen) {
     std::uniform_int_distribution<int> dist(0, openTiles.size() - 1);
     std::optional<Coord> coord = openTiles.getTileAtIndex(dist(gen));
     if (coord != std::nullopt) {
-        if (placeTent(board[coord.value().getRow()][coord.value().getCol()]));
+        if (placeTent(board[coord.value().getRow()][coord.value().getCol()], gen));
             return true;
     }
 
@@ -526,12 +520,12 @@ Tile Board::getTile(size_t row, size_t col) const{
     return board[row][col];
 }
 
-void Board::setTile(const Tile tile){
+void Board::setTile(const Tile tile, std::mt19937 gen){
     size_t col = tile.getCoord().getCol();
     size_t row = tile.getCoord().getRow();
 
     if (board[row][col].getType() == Type::NONE && tile.getType() == Type::TENT)
-        placeTent(board[row][col]);
+        placeTent(board[row][col], gen);
     else if (board[row][col].getType() == Type::TENT && tile.getType() == Type::NONE)
         deleteTent(board[row][col].getCoord());
     //else

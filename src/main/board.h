@@ -86,7 +86,7 @@ class Board{
          * @return true
          * @return false
          */
-        bool placeTent(Tile&);
+        bool placeTent(Tile&, std::mt19937);
 
         /**
          * @brief (currently) Places tent randomly
@@ -136,7 +136,7 @@ class Board{
          * 0 Indexed
          * @return Tile 
          */
-        void setTile(const Tile);
+        void setTile(const Tile, std::mt19937);
 
         /**
          * @brief Draws the current state of the board

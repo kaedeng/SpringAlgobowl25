@@ -234,7 +234,7 @@ TEST(RemoveTent, TentMoves){
   Board generatedBoard = input.inputFromFile(filePath);
 
   std::mt19937 localGen(std::random_device{}());
-  generatedBoard.setTile(Tile(Type::TENT, 0, 0));
+  generatedBoard.setTile(Tile(Type::TENT, 0, 0), std::mt19937(std::random_device{}()));
 
   generatedBoard.removeTent(localGen);
 

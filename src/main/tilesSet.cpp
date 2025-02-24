@@ -33,7 +33,7 @@ std::optional<Coord> TilesSet::getTileAtIndex(size_t index) const {
 }
 
 bool TilesSet::contains(const Coord &c) const {
-    return tileIndex.find(c) != tileIndex.end();
+    return tileIndex.count(c) > 0;
 }
 
 size_t TilesSet::size() const {

@@ -131,10 +131,10 @@ std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::m
                 Tile p2Tile = parent2.getTile(r, c);
 
                 if (child1.getTile(r, c).getType() != p2Tile.getType() || ((child1.getTile(r, c).getType() == Type::TENT && p2Tile.getType() == Type::TENT) && child1.getTile(r, c).getDir() != p2Tile.getDir())) {
-                    child1.setTile(p2Tile);
+                    child1.setTile(p2Tile, gen);
                 }
                 if (child2.getTile(r, c).getType() != p1Tile.getType() || ((child2.getTile(r, c).getType() == Type::TENT && p1Tile.getType() == Type::TENT) && child2.getTile(r, c).getDir() != p1Tile.getDir())) {
-                    child2.setTile(p1Tile);
+                    child2.setTile(p1Tile, gen);
                 }
             }
             tileCount++;
