@@ -186,13 +186,13 @@ void TTSolver::solve(){
     for(size_t i = 0; i < maxGenerations; i++){
         iterate();
         //mutationChance *= coolingRate;
-        std::cout << "iteration: " << i << std::endl;
 
         currentGeneration[0].drawBoard();
 
+        std::cout << "iteration: " << i << std::endl;
+
         std::cout << currentGeneration[0].getViolations() << std::endl;
 
-        std::cout << currentGeneration[0].getOpenTilesData().size() << std::endl;
     }
 
     createOutput();
