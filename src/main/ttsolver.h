@@ -54,7 +54,7 @@ class TTSolver {
     
     // Holds the set of boards, starting with a set starting board
     std::vector<Board> currentGeneration{generationSize, startingBoard};
-    std::vector<int> bestViolationsHistory;
+    std::vector<Board> parentGeneration{generationSize, startingBoard};
 
     /**
      * @brief Creates the output file with the current iteration of the chart.

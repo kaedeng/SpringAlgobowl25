@@ -9,8 +9,6 @@
 
 // A single iteration of the solving function
 void TTSolver::iterate() {
-    // 1) Copy current generation to parentGeneration
-    std::vector<Board> parentGeneration = currentGeneration;
 
     //    The best (fewest violations) will be at index 0,1,2,...
     std::partial_sort(
@@ -24,7 +22,7 @@ void TTSolver::iterate() {
 
     // elitism copies best boards from parentGeneration to currentGeneration
     for (size_t i = 0; i < elitismNum; i++) {
-        currentGeneration[i] = parentGeneration[i];
+        currentGeneration[i] = std::move(parentGeneration[i]);
     }
 
     unsigned baseSeed = std::random_device{}();
@@ -46,10 +44,13 @@ void TTSolver::iterate() {
 
             currentGeneration[i] = children[0];
             if (i + 1 < generationSize) {
-                currentGeneration[i + 1] = children[1];
+                currentGeneration[i + 1] = std::move(children[1]);
             }
         }
     }
+
+    std::swap(currentGeneration, parentGeneration);
+
 }
 
 /*
