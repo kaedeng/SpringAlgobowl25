@@ -63,12 +63,11 @@ Runs on every iteration
 std::vector<Board> TTSolver::selection(std::vector<Board> parentPopulation, std::mt19937 &gen){
     std::vector<Board> parents;
 
-    // std::uniform_real_distribution<double> dist(0.0, 1.0);
     std::uniform_int_distribution<size_t> dist(0, parentPopulation.size() - 1);
     for (int i = 0; i < 2; i++) {
         // Num of people in tournament is j < 2
         Board tournamentWinner = parentPopulation[0];
-        for (int j = 0; j < 2; j++){
+        for (int j = 0; j < 4; j++){
             int index = dist(gen);
             if(j == 0) 
                 // First one is default the winner
