@@ -1,10 +1,14 @@
 #include "tilesSet.h"
 #include <optional>
 
+TilesSet::TilesSet(){
+    tiles.reserve(250*400);
+}
+
 bool TilesSet::insert(const Coord c){
     if (tileIndex.find(c) != tileIndex.end())
                 return false; // Tile already open.
-            tiles.push_back(c);
+            tiles.push_back(std::move(c));
             tileIndex[c] = tiles.size() - 1;
             return true;
 }

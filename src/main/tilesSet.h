@@ -12,6 +12,7 @@ class TilesSet {
         std::unordered_map<Coord, size_t> tileIndex;
         
     public:
+        TilesSet();
         // Insert a new open tile.
         // Returns true if the tile was added; false if it already exists.
         bool insert(const Coord c);
