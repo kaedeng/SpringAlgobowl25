@@ -160,7 +160,7 @@ void TTSolver::initialize(){
     // Create a random number generator.
     std::mt19937 gen(std::random_device{}());
 
-    std::uniform_int_distribution<int> dist(0, static_cast<int>(numTiles)/2);
+    std::uniform_int_distribution<int> dist(0, static_cast<int>(startingBoard.getOpenTilesData().size())/2);
     
     for (auto &board : currentGeneration) {
         int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles

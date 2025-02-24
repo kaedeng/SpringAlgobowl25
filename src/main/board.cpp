@@ -293,6 +293,7 @@ bool Board::placeTent(Tile& tile) {
     // Place tent
     tile.setType(Type::TENT);
     openTiles.remove(tile.getCoord());
+    bitSetTent(tile.getCoord());
 
     // Update row counts.
     updateRowAndColForTent(r, c, true);
@@ -401,6 +402,7 @@ bool Board::deleteTent(Coord coord) {
 
     tentTiles.remove(coord);
     openTiles.insert(coord);
+    bitClearTent(coord);
 
     board[r][c].setType(Type::NONE);
 
@@ -452,6 +454,21 @@ bool Board::moveTent(std::mt19937 &gen) {
 Getters and Setters (Add more if needed)
 /////////////////////////////////////////////////////////////////////////////
 */
+
+void Board::bitSetTent(const Coord& location){
+    size_t index = location.getRow() * colCount + location.getCol();
+    bitBoard.set(index, true);
+}
+void Board::bitClearTent(const Coord& location){
+    size_t index = location.getRow() * colCount + location.getCol();
+    bitBoard.set(index, false);
+}
+size_t Board::countXorBits(const std::bitset<MAX_BOARD_SIZE>& other){
+    return (bitBoard ^ other).count();
+}
+std::bitset<Board::MAX_BOARD_SIZE> Board::getBitBoard() const{
+    return bitBoard;
+}
 
 void Board::printFullBoardInfo() const {
     // Print board dimensions and tent requirements.

@@ -4,9 +4,12 @@
 #include <vector>
 #include <unordered_set>
 #include <random>
+#include <bitset>
 
 class Board{
     private:
+        static constexpr std::size_t MAX_BOARD_SIZE = 250*400;
+
         // Board dimensions
         size_t rowCount = 0;
         size_t colCount = 0;
@@ -48,6 +51,8 @@ class Board{
         
         TilesSet openTiles;
         TilesSet tentTiles;
+
+        std::bitset<MAX_BOARD_SIZE> bitBoard;
 
         // Helper functions to update a tent’s adjacent violation status.
         std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
@@ -153,6 +158,12 @@ class Board{
         std::vector<std::vector<Tile>> getBoard();
 
         void printFullBoardInfo() const;
+        
+        // Bitset operations
+        void bitSetTent(const Coord&);
+        void bitClearTent(const Coord&);
+        size_t countXorBits(const std::bitset<MAX_BOARD_SIZE>&);
+        std::bitset<MAX_BOARD_SIZE> getBitBoard() const;
 
         // Getters and Setters for Board private variables
 
