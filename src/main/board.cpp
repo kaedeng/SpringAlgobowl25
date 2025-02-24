@@ -222,6 +222,9 @@ Board::Board(
                     updateTentAdjacencyForCoord(coord);
                 }
             }
+            if(board[i][j].getType() == Type::NONE){
+                openTiles.insert(board[i][j].getCoord());
+            }
         }
     }
 
@@ -255,6 +258,7 @@ Board::Board(const Board& other) {
     lonelyTentViolations = other.getLonelyTentViolations();
     violations = other.getViolations();
     numTiles = other.getNumTiles();
+    openTiles = other.getOpenTilesData();
 }
 
 Board& Board::operator=(const Board& other) {
@@ -277,6 +281,7 @@ Board& Board::operator=(const Board& other) {
         lonelyTentViolations = other.getLonelyTentViolations();
         violations = other.getViolations();
         numTiles = other.getNumTiles();
+        openTiles = other.getOpenTilesData();
     }
     return *this;
 }
@@ -287,6 +292,7 @@ bool Board::placeTent(Tile& tile) {
 
     // Place tent
     tile.setType(Type::TENT);
+    openTiles.remove(tile.getCoord());
 
     // Update row counts.
     updateRowAndColForTent(r, c, true);
@@ -405,6 +411,7 @@ bool Board::deleteTent(Coord coord) {
     int c = coord.getCol();
 
     tents.erase(coord);
+    openTiles.insert(coord);
 
     board[r][c].setType(Type::NONE);
 

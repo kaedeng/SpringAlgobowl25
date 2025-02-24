@@ -16,7 +16,7 @@ FetchContent_MakeAvailable(googletest)
 
 find_package(OpenMP REQUIRED)
 
-add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp)
+add_executable(main src/main/main.cpp src/main/input.cpp src/main/ttsolver.cpp src/main/board.cpp src/main/opentiles.cpp)
 
 if(OpenMP_FOUND)
   target_link_libraries(main PUBLIC OpenMP::OpenMP_CXX)
@@ -31,6 +31,7 @@ add_executable(
   src/main/board.cpp
   src/main/input.cpp
   src/main/ttsolver.cpp
+  src/main/opentiles.cpp
   src/test/tests.cc
 )
 

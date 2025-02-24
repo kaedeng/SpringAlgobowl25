@@ -1,5 +1,6 @@
 #pragma once
 #include "tile.h"
+#include "opentiles.h"
 #include <vector>
 #include <unordered_set>
 #include <random>
@@ -46,6 +47,8 @@ class Board{
 
         // Num tiles
         size_t numTiles = rowCount * colCount;
+        
+        OpenTiles openTiles;
 
         // Helper functions to update a tent’s adjacent violation status.
         std::unordered_set<Coord> getAdjacentTents(const Coord &coord) const;
@@ -214,6 +217,8 @@ class Board{
         size_t getNumTiles() const { return numTiles; }
         void setNumTiles(size_t nt) { numTiles = nt; }
   
+        OpenTiles getOpenTilesData() const { return openTiles; }
+
         std::vector<std::vector<Tile>> getBoard() const {
             return board;
         }

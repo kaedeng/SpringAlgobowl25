@@ -190,6 +190,8 @@ void TTSolver::solve(){
         currentGeneration[0].drawBoard();
 
         std::cout << currentGeneration[0].getViolations() << std::endl;
+
+        std::cout << currentGeneration[0].getOpenTilesData().size() << std::endl;
     }
 
     createOutput();
