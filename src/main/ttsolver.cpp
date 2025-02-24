@@ -42,7 +42,7 @@ void TTSolver::iterate() {
                 mutation(child, localGen);
             }
 
-            currentGeneration[i] = children[0];
+            currentGeneration[i] = std::move(children[0]);
             if (i + 1 < generationSize) {
                 currentGeneration[i + 1] = std::move(children[1]);
             }

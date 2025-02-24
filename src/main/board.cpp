@@ -239,28 +239,6 @@ Board::Board(
 
 }
 
-Board::Board(const Board& other) {
-    rowCount = other.getNumRows();
-    colCount = other.getNumCols();
-    board = other.getBoard();
-    rowTentNum = other.getRowTentNum();
-    colTentNum = other.getColTentNum();
-    currentRowTents = other.getCurrentRowTents();
-    currentColTents = other.getCurrentColTents();
-    tentTiles = other.getTentTilesData();
-    tentAdjViolation = other.getTentAdjViolation();
-    treeTentCount = other.getTreeTentCount();
-    numTrees = other.getNumTrees();
-    rowViolations = other.getRowViolations();
-    colViolations = other.getColViolations();
-    tentViolations = other.getTentViolations();
-    treeViolations = other.getTreeViolations();
-    lonelyTentViolations = other.getLonelyTentViolations();
-    violations = other.getViolations();
-    numTiles = other.getNumTiles();
-    openTiles = other.getOpenTilesData();
-}
-
 Board& Board::operator=(const Board& other) {
     if (this != &other) {
         rowCount = other.getNumRows();
