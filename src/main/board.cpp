@@ -24,10 +24,10 @@ std::unordered_set<Coord> Board::getAdjacentTents(const Coord &coord) const {
         Coord(1, -1),  Coord(1, 0),  Coord(1, 1)
     };
     
-    for (auto &dir : DIRS) {
+    for (const Coord& dir : DIRS) {
         Coord adjacent(coord.getRow() + dir.getRow(), coord.getCol() + dir.getCol());
         if (tentTiles.contains(adjacent))
-            adj.insert(adjacent);
+            adj.insert(std::move(adjacent));
     }
     return adj;
 }
@@ -49,7 +49,7 @@ void Board::updateTentAdjacencyForCoord(const Coord &coord) {
         if (tentAdjViolation.count(coord) && tentAdjViolation[coord] == true) {
             tentViolations -= 1;
         }
-        tentAdjViolation.erase(coord);
+        tentAdjViolation.erase(std::move(coord));
     }
 
     // Update each neighboring tent's violation status.
