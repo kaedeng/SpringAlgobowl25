@@ -85,7 +85,7 @@ class TTSolver {
     /**
      * @brief Creates the next generation and mixes genes
      */
-    std::vector<Board> crossover(const std::vector<Board>&, std::mt19937 &gen);
+    std::vector<Board> crossover(std::vector<Board>&, std::mt19937 &gen);
 
     /**
      * @brief Mutates the next generation

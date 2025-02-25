@@ -112,17 +112,7 @@ double TTSolver::weightedPairScore(Board &a, Board &b) {
     return (avgViolations/static_cast<double>(numTiles)) - diversityWeight * diversity;
 }
 
-std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::mt19937 &gen){
-    std::vector<Board> children;
-    children.reserve(2);
-
-    Board parent1 = parents[0];
-    Board parent2 = parents[1];
-
-    // Make child boards as copies of the parents
-    Board child1 = parent1;
-    Board child2 = parent2;
-
+std::vector<Board> TTSolver::crossover(std::vector<Board>& parents, std::mt19937 &gen){
     // Choose a crossover point
     std::uniform_int_distribution<size_t> dist(0, numTiles);
     size_t crossoverPoint = dist(gen);
@@ -130,25 +120,28 @@ std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::m
     size_t tileCount = 0;
     for (size_t r = 0; r < numRows; r++) {
         for (size_t c = 0; c < numCols; c++) {
-            if (tileCount >= crossoverPoint) {
 
-                Tile p1Tile = parent1.getTile(r, c);
-                Tile p2Tile = parent2.getTile(r, c);
+            Tile p1Tile = parents[0].getTile(r, c);
+            Tile p2Tile = parents[1].getTile(r, c);
 
-                if (child1.getTile(r, c).getType() != p2Tile.getType() || ((child1.getTile(r, c).getType() == Type::TENT && p2Tile.getType() == Type::TENT) && child1.getTile(r, c).getDir() != p2Tile.getDir())) {
-                    child1.setTile(p2Tile, gen);
+            if (tileCount < crossoverPoint) {
+
+                if ((p1Tile.getType() != p2Tile.getType()) || ((p1Tile.getType() == Type::TENT && p2Tile.getType() == Type::TENT) && (p1Tile.getDir() != p2Tile.getDir()))){
+                    parents[1].setTile(p1Tile, gen);
                 }
-                if (child2.getTile(r, c).getType() != p1Tile.getType() || ((child2.getTile(r, c).getType() == Type::TENT && p1Tile.getType() == Type::TENT) && child2.getTile(r, c).getDir() != p1Tile.getDir())) {
-                    child2.setTile(p1Tile, gen);
+
+            } else {
+
+                if ((p2Tile.getType() != p1Tile.getType()) || ((p2Tile.getType() == Type::TENT && p1Tile.getType() == Type::TENT) && (p2Tile.getDir() != p1Tile.getDir()))){
+                    parents[0].setTile(p2Tile, gen);
                 }
+
             }
             tileCount++;
         }
     }
 
-    children.push_back(child1);
-    children.push_back(child2);
-    return children;
+    return parents;
 }
 
 void TTSolver::mutation(Board& child, std::mt19937 &gen) {
@@ -195,7 +188,6 @@ void TTSolver::initialize(){
             for (int i = 0; i < randomNumberOfTents; ++i) {
                 board.addTent(gen);
             }
-            board.drawBoard();
         }
     }
     

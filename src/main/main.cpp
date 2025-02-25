@@ -22,9 +22,9 @@ int main(int argc, char** argv) {
         clFlags(&inputData, argv[i]);
     }
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 1; ++i) {
         // generationSize, maxGenerationsNoImprovement, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
-        TTSolver solver(argv[1], 300, 3000, board, 80, 25, 0.999, 15, .05);
+        TTSolver solver(argv[1], 300, 2000, board, 80, 25, 0.999, 15, .01);
         solver.solve();
     }
 
