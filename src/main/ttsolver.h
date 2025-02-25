@@ -50,7 +50,7 @@ class TTSolver {
     size_t numRows;
     size_t numCols;
 
-    Board bestBoard = startingBoard;
+    Board bestBoard = std::move(startingBoard);
     
     // Holds the set of boards, starting with a set starting board
     std::vector<Board> currentGeneration{generationSize, startingBoard};

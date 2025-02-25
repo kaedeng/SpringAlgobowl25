@@ -191,6 +191,7 @@ Board::Board(
             // If the current tile is a tent
             if(board[i][j].getType() == Type::TENT){
                 Coord coord = board[i][j].getCoord();
+                bitSetTent(coord);
                 if (!tentTiles.contains(coord)) {
                     tentTiles.insert(coord);
                     currentRowTents[i]++;
@@ -239,6 +240,29 @@ Board::Board(
 
 }
 
+Board::Board(const Board& other) {
+    rowCount = other.getNumRows();
+    colCount = other.getNumCols();
+    board = other.getBoard();
+    rowTentNum = other.getRowTentNum();
+    colTentNum = other.getColTentNum();
+    currentRowTents = other.getCurrentRowTents();
+    currentColTents = other.getCurrentColTents();
+    tentTiles = other.getTentTilesData();
+    tentAdjViolation = other.getTentAdjViolation();
+    treeTentCount = other.getTreeTentCount();
+    numTrees = other.getNumTrees();
+    rowViolations = other.getRowViolations();
+    colViolations = other.getColViolations();
+    tentViolations = other.getTentViolations();
+    treeViolations = other.getTreeViolations();
+    lonelyTentViolations = other.getLonelyTentViolations();
+    violations = other.getViolations();
+    numTiles = other.getNumTiles();
+    openTiles = other.getOpenTilesData();
+    bitBoard = other.getBitBoard();
+}
+
 Board& Board::operator=(const Board& other) {
     if (this != &other) {
         rowCount = other.getNumRows();
@@ -260,11 +284,12 @@ Board& Board::operator=(const Board& other) {
         violations = other.getViolations();
         numTiles = other.getNumTiles();
         openTiles = other.getOpenTilesData();
+        bitBoard = other.getBitBoard();
     }
     return *this;
 }
 
-bool Board::placeTent(Tile& tile, std::mt19937 gen) {
+bool Board::placeTent(Tile& tile, std::mt19937& gen) {
     int r = tile.getCoord().getRow();
     int c = tile.getCoord().getCol();
 

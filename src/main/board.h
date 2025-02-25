@@ -73,54 +73,8 @@ class Board{
         );
 
         //Board(const Board& other);
-
-        Board(Board&& other) noexcept
-            : rowCount(other.rowCount),
-            colCount(other.colCount),
-            board(std::move(other.board)),
-            rowTentNum(std::move(other.rowTentNum)),
-            colTentNum(std::move(other.colTentNum)),
-            currentRowTents(std::move(other.currentRowTents)),
-            currentColTents(std::move(other.currentColTents)),
-            tentTiles(std::move(other.tentTiles)),
-            tentAdjViolation(std::move(other.tentAdjViolation)),
-            treeTentCount(std::move(other.treeTentCount)),
-            numTrees(other.numTrees),
-            rowViolations(other.rowViolations),
-            colViolations(other.colViolations),
-            tentViolations(other.tentViolations),
-            treeViolations(other.treeViolations),
-            lonelyTentViolations(other.lonelyTentViolations),
-            violations(other.violations),
-            numTiles(other.numTiles),
-            openTiles(std::move(other.openTiles)),
-            bitBoard(std::move(other.bitBoard)){}
-
-            Board& operator=(Board&& other) noexcept {
-                if (this != &other) {
-                    rowCount = other.rowCount;
-                    colCount = other.colCount;
-                    board = std::move(other.board);
-                    rowTentNum = std::move(other.rowTentNum);
-                    colTentNum = std::move(other.colTentNum);
-                    currentRowTents = std::move(other.currentRowTents);
-                    currentColTents = std::move(other.currentColTents);
-                    tentTiles = std::move(other.tentTiles);
-                    tentAdjViolation = std::move(other.tentAdjViolation);
-                    treeTentCount = std::move(other.treeTentCount);
-                    numTrees = other.numTrees;
-                    rowViolations = other.rowViolations;
-                    colViolations = other.colViolations;
-                    tentViolations = other.tentViolations;
-                    treeViolations = other.treeViolations;
-                    lonelyTentViolations = other.lonelyTentViolations;
-                    violations = other.violations;
-                    numTiles = other.numTiles;
-                    openTiles = std::move(other.openTiles);
-                    bitBoard = std::move(other.bitBoard);
-                }
-                return *this;
-            }
+        Board(const Board& other);
+        Board& operator=(const Board& other);
         
         /**
          * @brief Checks for all violations on the board at the current moment
@@ -133,7 +87,7 @@ class Board{
          * @return true
          * @return false
          */
-        bool placeTent(Tile&, std::mt19937);
+        bool placeTent(Tile&, std::mt19937&);
 
         /**
          * @brief (currently) Places tent randomly

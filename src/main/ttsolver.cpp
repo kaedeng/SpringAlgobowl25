@@ -105,7 +105,7 @@ double TTSolver::weightedPairScore(Board &a, Board &b) {
     // Get the Hamming distance (diversity) between the two boards
     double diversity = a.countXorBits(b.getBitBoard());
     // Lower score is better, so subtract diversity-weight
-    return avgViolations - diversityWeight * diversity;
+    return (avgViolations/static_cast<double>(numTiles)) - diversityWeight * diversity;
 }
 
 std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::mt19937 &gen){
@@ -208,22 +208,31 @@ void TTSolver::solve(){
     numTiles = numRows * numCols;
     initialize();
     // Loop for a given number of runs
-    for(size_t i = 0; i < maxGenerations; i++){
-        iterate();
-        //mutationChance *= coolingRate;
+    int j = 1;
+    do{
+        for(size_t i = 0; i < maxGenerations; i++){
+            iterate();
+            //mutationChance *= coolingRate;
 
-        currentGeneration[0].drawBoard();
+            currentGeneration[0].drawBoard();
 
-        std::cout << "iteration: " << i << std::endl;
-        
-        size_t minViolations = currentGeneration[0].getViolations();  
-        std::cout << minViolations << std::endl;
-        if(minViolations == 0){
-            createOutput();
-            return;
+            std::cout << "iteration: " << j++ << std::endl;
+
+            size_t minViolations = currentGeneration[0].getViolations();
+            std::cout << minViolations << std::endl;
+            if(minViolations == 0){
+                createOutput();
+                return;
+            }
         }
     }
-
+    while ([]{
+        std::string check;
+        std::cout << "Enter c to win";
+        std::cin >> check;
+        return check == "c";
+    }()
+    );
     createOutput();
 }
 
