@@ -42,7 +42,7 @@ void TTSolver::iterate() {
                 mutation(child, localGen);
             }
 
-            currentGeneration[i] = children[0];
+            currentGeneration[i] = std::move(children[0]);
             if (i + 1 < generationSize) {
                 currentGeneration[i + 1] = std::move(children[1]);
             }
@@ -105,7 +105,7 @@ double TTSolver::weightedPairScore(Board &a, Board &b) {
     // Get the Hamming distance (diversity) between the two boards
     double diversity = a.countXorBits(b.getBitBoard());
     // Lower score is better, so subtract diversity-weight
-    return avgViolations - diversityWeight * diversity;
+    return (avgViolations/static_cast<double>(numTiles)) - diversityWeight * diversity;
 }
 
 std::vector<Board> TTSolver::crossover(const std::vector<Board>& parents, std::mt19937 &gen){

@@ -72,6 +72,7 @@ class Board{
             size_t numTrees
         );
 
+        //Board(const Board& other);
         Board(const Board& other);
         Board& operator=(const Board& other);
         
@@ -86,7 +87,7 @@ class Board{
          * @return true
          * @return false
          */
-        bool placeTent(Tile&, std::mt19937);
+        bool placeTent(Tile&, std::mt19937&);
 
         /**
          * @brief (currently) Places tent randomly

@@ -191,6 +191,7 @@ Board::Board(
             // If the current tile is a tent
             if(board[i][j].getType() == Type::TENT){
                 Coord coord = board[i][j].getCoord();
+                bitSetTent(coord);
                 if (!tentTiles.contains(coord)) {
                     tentTiles.insert(coord);
                     currentRowTents[i]++;
@@ -259,6 +260,7 @@ Board::Board(const Board& other) {
     violations = other.getViolations();
     numTiles = other.getNumTiles();
     openTiles = other.getOpenTilesData();
+    bitBoard = other.getBitBoard();
 }
 
 Board& Board::operator=(const Board& other) {
@@ -282,11 +284,12 @@ Board& Board::operator=(const Board& other) {
         violations = other.getViolations();
         numTiles = other.getNumTiles();
         openTiles = other.getOpenTilesData();
+        bitBoard = other.getBitBoard();
     }
     return *this;
 }
 
-bool Board::placeTent(Tile& tile, std::mt19937 gen) {
+bool Board::placeTent(Tile& tile, std::mt19937& gen) {
     int r = tile.getCoord().getRow();
     int c = tile.getCoord().getCol();
 
