@@ -309,13 +309,13 @@ bool Board::placeTent(Tile& tile, std::mt19937& gen) {
 
     // Choose an associated tree.
     std::vector<Tile> treeTiles;
-    if (c - 1 >= 0 && board[r][c - 1].getType() == Type::TREE)
+    if (c - 1 >= 0 && board[r][c - 1].getType() == Type::TREE && (treeTentCount[board[r][c - 1].getCoord()] == 0))
         treeTiles.push_back(board[r][c - 1]);
-    if (c + 1 < colCount && board[r][c + 1].getType() == Type::TREE)
+    if (c + 1 < colCount && board[r][c + 1].getType() == Type::TREE && (treeTentCount[board[r][c + 1].getCoord()] == 0))
         treeTiles.push_back(board[r][c + 1]);
-    if (r - 1 >= 0 && board[r - 1][c].getType() == Type::TREE)
+    if (r - 1 >= 0 && board[r - 1][c].getType() == Type::TREE && (treeTentCount[board[r - 1][c].getCoord()] == 0))
         treeTiles.push_back(board[r - 1][c]);
-    if (r + 1 < rowCount && board[r + 1][c].getType() == Type::TREE)
+    if (r + 1 < rowCount && board[r + 1][c].getType() == Type::TREE && (treeTentCount[board[r + 1][c].getCoord()] == 0))
         treeTiles.push_back(board[r + 1][c]);
 
     // Shuffle treeTiles to randomize the iteration order.
@@ -370,7 +370,7 @@ bool Board::addTent(std::mt19937 &gen) {
     std::uniform_int_distribution<int> dist(0, openTiles.size() - 1);
     std::optional<Coord> coord = openTiles.getTileAtIndex(dist(gen));
     if (coord != std::nullopt) {
-        if (placeTent(board[coord.value().getRow()][coord.value().getCol()], gen));
+        if (placeTent(board[coord.value().getRow()][coord.value().getCol()], gen))
             return true;
     }
 
