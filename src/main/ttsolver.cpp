@@ -209,6 +209,7 @@ Running and Output
 
 // Solve function should be the only one you run
 void TTSolver::solve(){
+
     numTiles = numRows * numCols;
     initialize();
     size_t minViolations = startingBoard.getViolations();
@@ -262,7 +263,7 @@ bool TTSolver::createOutput() {
     int randomIndex = dis(gen);
 
     // Construct the output file name with the random index.
-    std::filesystem::path outFilePath = outputFolderPath / (baseName + std::to_string(randomIndex) + ".out");
+    std::filesystem::path outFilePath = outputFolderPath / (baseName + '_' + std::to_string(randomIndex) + ".out");
     std::ofstream outFile(outFilePath);
     if (!outFile) {
         std::cerr << "Error opening file for writing: " << outFilePath << std::endl;
