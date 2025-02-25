@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
     for (int i = 0; i < 1; ++i) {
         // filepath, generationSize, maxGenerationsNoImprovement, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
-        TTSolver solver(argv[1], 300, 10000, board, 80, 25, 0.999, 15, .01);
+        TTSolver solver(argv[1], 300, 1000, board, 80, 25, 0.999, 15, 0.1);
         solver.solve();
     }
 

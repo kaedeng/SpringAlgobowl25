@@ -460,7 +460,7 @@ void Board::bitClearTent(const Coord& location){
     size_t index = location.getRow() * colCount + location.getCol();
     bitBoard.set(index, false);
 }
-size_t Board::countXorBits(const std::bitset<MAX_BOARD_SIZE>& other){
+size_t Board::countXorBits(const std::bitset<MAX_BOARD_SIZE>& other) const{
     return (bitBoard ^ other).count();
 }
 std::bitset<Board::MAX_BOARD_SIZE> Board::getBitBoard() const{
