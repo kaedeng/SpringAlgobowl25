@@ -18,9 +18,10 @@ class TTSolver {
      * @brief Construct a new TTSolver object
      * Should just pass the information from parsing files to initialize this
      */
-    TTSolver(size_t generationSize, size_t maxGenerations, const Board& board, int mutationChance, int selectionFactor, double coolingRate, int elitismNum, double diversityWeight)
-    : generationSize(generationSize),
-      maxGenerations(maxGenerations),
+    TTSolver(char * filePath, size_t generationSize, size_t maxGenerationsNoImprovement, const Board& board, int mutationChance, int selectionFactor, double coolingRate, int elitismNum, double diversityWeight)
+    : filePath(filePath),
+      generationSize(generationSize),
+      maxGenerationsNoImprovement(maxGenerationsNoImprovement),
       startingBoard(board),
       mutationChance(mutationChance),
       coolingRate(coolingRate),       // coolingRate comes before selectionFactor as declared
@@ -28,7 +29,7 @@ class TTSolver {
       elitismNum(elitismNum),
       diversityWeight(diversityWeight)
     {
-    coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerations);
+    coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerationsNoImprovement);
     }
 
     void solve();
@@ -37,7 +38,7 @@ class TTSolver {
 
     // Tune-ables (tuna?)
     size_t generationSize;
-    size_t maxGenerations;
+    size_t maxGenerationsNoImprovement;
     Board startingBoard;
     double diversityWeight;
     int mutationChance;
@@ -45,6 +46,8 @@ class TTSolver {
     double coolingRate; // Should be like 0.98 or something high
 
     int selectionFactor;
+
+    char * filePath;
 
     size_t numTiles;
     size_t numRows;

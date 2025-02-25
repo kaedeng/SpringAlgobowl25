@@ -1,11 +1,15 @@
 #include "ttsolver.h"
 #include "board.h"
+#include "tilesSet.h"
 #include <omp.h>
 
 #include <random>
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <filesystem>
 
 // A single iteration of the solving function
 void TTSolver::iterate() {
@@ -207,43 +211,90 @@ Running and Output
 void TTSolver::solve(){
     numTiles = numRows * numCols;
     initialize();
+    size_t minViolations = startingBoard.getViolations();
+    size_t counter = 0;
     // Loop for a given number of runs
     int j = 1;
-    do{
-        for(size_t i = 0; i < maxGenerations; i++){
-            iterate();
-            //mutationChance *= coolingRate;
+    for(size_t i = 0; i < 1000000; i++){
+        iterate();
+        //mutationChance *= coolingRate;
 
-            currentGeneration[0].drawBoard();
+        currentGeneration[0].drawBoard();
 
-            std::cout << "iteration: " << j++ << std::endl;
-            
-            size_t minViolations = currentGeneration[0].getViolations();  
-            std::cout << minViolations << std::endl;
-            if(minViolations == 0){
-                createOutput();
-                return;
-            }
+        std::cout << "iteration: " << j++ << std::endl;
+        
+        if(currentGeneration[0].getViolations() < minViolations){
+            minViolations = currentGeneration[0].getViolations(); 
+            counter = 0;
         }
+        std::cout << minViolations << std::endl;
+        if(minViolations == 0 || counter >= maxGenerationsNoImprovement){
+            createOutput();
+            return;
+        }
+        counter++;
     }
-    while ([]{
-        std::string check;
-        std::cout << "Enter c to win";
-        std::cin >> check;
-        return check == "c";
-    }()
-    );
     createOutput();
 }
 
-bool TTSolver::createOutput(){
-    std::sort(currentGeneration.begin(), currentGeneration.end(), 
-        [](const Board& a, const Board& b) {
+bool TTSolver::createOutput() {
+
+    std::filesystem::path inputPath(filePath);
+    std::string baseName = inputPath.stem().string();
+    std::filesystem::path directory = inputPath.parent_path();
+
+    // get output folder name
+    std::string outputFolderName = baseName + "_output";
+    std::filesystem::path outputFolderPath = directory / outputFolderName;
+
+    // Make new output folder
+    if (!std::filesystem::exists(outputFolderPath)) {
+        if (!std::filesystem::create_directory(outputFolderPath)) {
+            std::cerr << "Error creating output directory: " << outputFolderPath << std::endl;
+            return false;
+        }
+    }
+
+    // random number for name
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(1, 999999);
+    int randomIndex = dis(gen);
+
+    // Construct the output file name with the random index.
+    std::filesystem::path outFilePath = outputFolderPath / (baseName + std::to_string(randomIndex) + ".out");
+    std::ofstream outFile(outFilePath);
+    if (!outFile) {
+        std::cerr << "Error opening file for writing: " << outFilePath << std::endl;
+        return false;
+    }
+
+    // Sort the current generation
+    std::sort(currentGeneration.begin(), currentGeneration.end(),
+        [](const Board &a, const Board &b) {
             return a.getViolations() < b.getViolations();
         }
     );
+    const Board &bestBoard = currentGeneration[0];
 
-    currentGeneration[0].drawBoard();
-    currentGeneration[0].debugPrintViolations();
+    // Write the total number of violations
+    outFile << bestBoard.getViolations() << "\n";
+
+    TilesSet bestTentTiles = bestBoard.getTentTilesData();
+
+    // Second line number of tents added
+    outFile << bestTentTiles.size() << "\n";
+
+    // tentCount lines of row col dir
+    for (int i = 0; i < bestTentTiles.size(); i++) {
+
+        int row = bestTentTiles.getTileAtIndex(i).value().getRow();
+        int col = bestTentTiles.getTileAtIndex(i).value().getCol();
+
+        outFile << row + 1 << " " << col + 1 << " " << bestBoard.getBoard()[row][col].getDir() << std::endl;
+
+    }
+
+    outFile.close();
     return true;
-};
+}

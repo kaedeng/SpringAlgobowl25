@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
         clFlags(&inputData, argv[i]);
     }
 
-    // generationSize, maxGenerations, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
-    TTSolver solver(300, 5000, board, 80, 25, 0.999, 15, .01);
+    // generationSize, maxGenerationsNoImprovement, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
+    TTSolver solver(argv[1], 300, 1000, board, 80, 25, 0.999, 5, .01);
     solver.solve();
 
     return 0;
