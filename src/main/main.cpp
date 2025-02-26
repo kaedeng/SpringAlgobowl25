@@ -15,18 +15,15 @@ void clFlags(Input* input, std::string clArg) {
 }
 
 int main(int argc, char** argv) {
-    Input inputData;
-
-    Board board = inputData.inputFromFile(argv[1]);
-    for (int i = 2; i < argc; ++i) {
-        clFlags(&inputData, argv[i]);
+    
+    for (int i = 0; i < 500; i++){
+        for (int i = 1; i < argc; i++) {
+            // filepath, generationSize, maxGenerationsNoImprovement, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
+            Input inputData;
+            Board board = inputData.inputFromFile(argv[i]);
+            TTSolver solver(argv[i], 100, 50000, board, 5, 0, 0, 13, 50);
+            solver.solve();
+        }
     }
-
-    for (int i = 0; i < 1; ++i) {
-        // filepath, generationSize, maxGenerationsNoImprovement, board, chance for mutation (%), selectionFactor, cooling rate, elitism, diversity
-        TTSolver solver(argv[1], 500, 2000, board, 1, 0, 0, 13, 200);
-        solver.solve();
-    }
-
     return 0;
 }

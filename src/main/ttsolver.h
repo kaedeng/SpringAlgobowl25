@@ -54,6 +54,8 @@ class TTSolver {
     size_t numCols;
 
     Board bestBoard = std::move(startingBoard);
+
+    size_t initalEmptyTiles = startingBoard.getOpenTilesData().size();
     
     // Holds the set of boards, starting with a set starting board
     std::vector<Board> currentGeneration{generationSize, startingBoard};
