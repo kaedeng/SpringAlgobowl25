@@ -32,7 +32,7 @@ class TTSolver {
     coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerationsNoImprovement);
     }
 
-    void solve();
+    size_t solve();
 
     private:
 

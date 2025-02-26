@@ -119,37 +119,37 @@ double TTSolver::weightedPairScore(const Board &a,const Board &b) {
 }
 
 std::pair<Board, Board> TTSolver::crossover(std::pair<size_t, size_t>& parents, std::mt19937 &gen) {
+
+    std::pair<Board, Board> childrenBoards = std::make_pair(parentGeneration[parents.first], parentGeneration[parents.second]);
+
+    // Choose a crossover point
     std::uniform_int_distribution<size_t> dist(0, numTiles);
     size_t crossoverPoint = dist(gen);
-
-    std::pair<Board, Board> parentBoards = std::make_pair(parentGeneration[parents.first], parentGeneration[parents.second]);
 
     size_t tileCount = 0;
     for (size_t r = 0; r < numRows; r++) {
         for (size_t c = 0; c < numCols; c++) {
-            // Get references to the tiles directly without instantiation.
-            const auto& p1Tile = parentGeneration[parents.first].getTile(r, c);
-            const auto& p2Tile = parentGeneration[parents.second].getTile(r, c);
+            if (tileCount >= crossoverPoint) {
 
-            if (tileCount < crossoverPoint) {
-                if ((p1Tile.getType() != p2Tile.getType()) ||
-                   ((p1Tile.getType() == Type::TENT && p2Tile.getType() == Type::TENT) &&
-                    (p1Tile.getDir() != p2Tile.getDir()))) {
-                    parentBoards.first.setTile(p1Tile, gen);
+                Tile p1Tile = parentGeneration[parents.first].getTile(r, c);
+                Tile p2Tile = parentGeneration[parents.second].getTile(r, c);
+
+                if (childrenBoards.first.getTile(r, c).getType() != p2Tile.getType() || ((childrenBoards.first.getTile(r, c).getType() == Type::TENT && p2Tile.getType() == Type::TENT) && childrenBoards.first.getTile(r, c).getDir() != p2Tile.getDir())) {
+                    childrenBoards.first.setTile(p2Tile, gen);
                 }
-            } else {
-                if ((p2Tile.getType() != p1Tile.getType()) ||
-                   ((p2Tile.getType() == Type::TENT && p1Tile.getType() == Type::TENT) &&
-                    (p2Tile.getDir() != p1Tile.getDir()))) {
-                    parentBoards.second.setTile(p2Tile, gen);
+
+                if (childrenBoards.second.getTile(r, c).getType() != p1Tile.getType() || ((childrenBoards.second.getTile(r, c).getType() == Type::TENT && p1Tile.getType() == Type::TENT) && childrenBoards.second.getTile(r, c).getDir() != p1Tile.getDir())) {
+                    childrenBoards.second.setTile(p1Tile, gen);
                 }
+
             }
             tileCount++;
+
         }
     }
-    return parentBoards;
-}
 
+    return childrenBoards;
+}
 
 void TTSolver::mutation(std::pair<Board, Board>& children, std::mt19937 &gen) {
     std::uniform_int_distribution<int> chanceDist(0, 100);
@@ -210,20 +210,20 @@ void TTSolver::initialize(){
     numCols = startingBoard.getNumCols();
     numTiles = numRows * numCols;
     std::uniform_int_distribution<int> dist(0, static_cast<int>(numTiles)/2);
-    #pragma omp parallel
-    {
-        // Create a random number generator.
-        std::mt19937 gen(std::random_device{}());
+    // #pragma omp parallel
+    // {
+    //     // Create a random number generator.
+    //     std::mt19937 gen(std::random_device{}());
 
-        #pragma omp for
-        for (auto &board : currentGeneration) {
-            int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
-            for (int i = 0; i < randomNumberOfTents; ++i) {
-                board.addTent(gen);
-            }
-        }
-    }
-    
+    //     #pragma omp for
+    //     for (auto &board : currentGeneration) {
+    //         int randomNumberOfTents = dist(gen);  // Random number of tents between 0% to 50% of numTiles
+    //         for (int i = 0; i < randomNumberOfTents; ++i) {
+    //             board.addTent(gen);
+    //         }
+    //     }
+    // }
+
 }
 
 /*
@@ -233,10 +233,9 @@ Running and Output
 */
 
 // Solve function should be the only one you run
-void TTSolver::solve(){
+size_t TTSolver::solve(){
 
     numTiles = numRows * numCols;
-    initalEmptyTiles = startingBoard.getOpenTilesData().size();
     initialize();
     size_t minViolations = startingBoard.getViolations();
     size_t counter = 0;
@@ -249,19 +248,34 @@ void TTSolver::solve(){
         currentGeneration[0].drawBoard();
 
         std::cout << "iteration: " << j++ << std::endl;
-        
+
         if(currentGeneration[0].getViolations() < minViolations){
             minViolations = currentGeneration[0].getViolations(); 
             counter = 0;
         }
         std::cout << minViolations << std::endl;
         if(minViolations == 0 || counter >= maxGenerationsNoImprovement){
+            // std::cout << "enter c to continue or p for continue and make output" << std::endl;
+            // std::string a;
+            // std::cin >> a;
+            // if(a == "c"){
+            //     counter = 0;
+            // }
+            // else if (a == "p"){
+            //     counter = 0;
+            //     createOutput();
+            //     return minViolations;
+            // }
+            // else{
+            //     createOutput();
+            //     return minViolations;
+            // }
             createOutput();
-            return;
+            return minViolations;
+
         }
         counter++;
     }
-    createOutput();
 }
 
 bool TTSolver::createOutput() {
