@@ -32,7 +32,7 @@ class TTSolver {
     coolingRate = static_cast<double>(mutationChance) / static_cast<double>(maxGenerationsNoImprovement);
     }
 
-    void solve();
+    size_t solve();
 
     private:
 
@@ -52,6 +52,8 @@ class TTSolver {
     size_t numTiles;
     size_t numRows;
     size_t numCols;
+
+    size_t initalEmptyTiles;
 
     Board bestBoard = std::move(startingBoard);
     
@@ -80,22 +82,22 @@ class TTSolver {
     /**
      * @brief Selects the next generation
      */
-    std::vector<Board> selection(const std::vector<Board>&, std::mt19937 &gen);
+    std::pair<size_t, size_t> selection(std::mt19937 &gen);
 
     /**
      * @brief Creates the next generation and mixes genes
      */
-    std::vector<Board> crossover(std::vector<Board>&, std::mt19937 &gen);
+    std::pair<Board, Board> crossover(std::pair<size_t, size_t>&, std::mt19937 &gen);
 
     /**
      * @brief Mutates the next generation
      */
-    void mutation(Board&, std::mt19937 &gen);
+    void mutation(std::pair<Board, Board>&, std::mt19937 &gen);
 
     void initialize();
 
     std::vector<int> splice(const std::vector<int>& array, int startIndex, int endIndex);
 
-    double weightedPairScore(Board &a,Board &b);
+    double weightedPairScore(const Board &a, const Board &b);
 
 };

@@ -40,15 +40,14 @@ void TTSolver::iterate() {
         #pragma omp for
         for (size_t i = elitismNum; i < generationSize; i += 2) {
             // Perform selection, crossover, and mutation 
-            std::vector<Board> parents = selection(parentGeneration, localGen);
-            std::vector<Board> children = crossover(parents, localGen);
-            for (auto &child : children) {
-                mutation(child, localGen);
-            }
+            std::pair<size_t, size_t> parents = selection(localGen);
+            std::pair<Board, Board> children = crossover(parents, localGen);
+            mutation(children, localGen);
 
-            currentGeneration[i] = std::move(children[0]);
+
+            currentGeneration[i] = std::move(children.first);
             if (i + 1 < generationSize) {
-                currentGeneration[i + 1] = std::move(children[1]);
+                currentGeneration[i + 1] = std::move(children.second);
             }
         }
     }
@@ -65,45 +64,52 @@ Runs on every iteration
 
 // Sorting algo for remembering: 
 // std::sort(currentGeneration.begin(), currentGeneration.end(), [](const Board& a, const Board& b){return a.getViolations() < b.getViolations();});
-std::vector<Board> TTSolver::selection(const std::vector<Board>& parentPopulation, std::mt19937 &gen){
-    std::vector<Board> parents1;
-    std::vector<Board> parents2;
-    std::uniform_int_distribution<size_t> dist(0, parentPopulation.size() - 1);
+std::pair<size_t, size_t> TTSolver::selection(std::mt19937 &gen) {
+    std::pair<size_t, size_t> parents1;
+    std::pair<size_t, size_t> parents2;
+    std::uniform_int_distribution<size_t> dist(0, parentGeneration.size() - 1);
 
     // First tournament to form the first candidate pair.
     for (int i = 0; i < 2; i++) {
-        Board tournamentWinner = parentPopulation[dist(gen)];
-        // Run a mini tournament of size 2 (you can increase the tournament size as needed)
+        size_t bestIndex = dist(gen);
+        // Run a mini tournament of size 2 (adjust tournament size as needed)
         for (int j = 0; j < 2; j++){
-            int index = dist(gen);
-            if (parentPopulation[index].getViolations() < tournamentWinner.getViolations())
-                tournamentWinner = parentPopulation[index];
+            size_t index = dist(gen);
+            if (parentGeneration[index].getViolations() < parentGeneration[bestIndex].getViolations())
+                bestIndex = index;
         }
-        parents1.push_back(tournamentWinner);
+        if (i == 0)
+            parents1.first = bestIndex;
+        else
+            parents1.second = bestIndex;
     }
 
     // Second tournament to form the second candidate pair.
     for (int i = 0; i < 2; i++) {
-        Board tournamentWinner = parentPopulation[dist(gen)];
+        size_t bestIndex = dist(gen);
         for (int j = 0; j < 2; j++){
-            int index = dist(gen);
-            if (parentPopulation[index].getViolations() < tournamentWinner.getViolations())
-                tournamentWinner = parentPopulation[index];
+            size_t index = dist(gen);
+            if (parentGeneration[index].getViolations() < parentGeneration[bestIndex].getViolations())
+                bestIndex = index;
         }
-        parents2.push_back(tournamentWinner);
+        if (i == 0)
+            parents2.first = bestIndex;
+        else
+            parents2.second = bestIndex;
     }
 
-    double score1 = weightedPairScore(parents1[0], parents1[1]);
-    double score2 = weightedPairScore(parents2[0], parents2[1]);
+    double score1 = weightedPairScore(parentGeneration[parents1.first], parentGeneration[parents1.second]);
+    double score2 = weightedPairScore(parentGeneration[parents2.first], parentGeneration[parents2.second]);
 
-    // Lower score better pair
+    // Lower score indicates a better pair.
     if (score1 < score2)
         return parents1;
     else
         return parents2;
 }
 
-double TTSolver::weightedPairScore(Board &a, Board &b) {
+
+double TTSolver::weightedPairScore(const Board &a,const Board &b) {
     // Average the violations of both boards (lower is better)
     double avgViolations = (a.getViolations() + b.getViolations()) / 2.0;
     // Get the Hamming distance (diversity) between the two boards
@@ -112,7 +118,10 @@ double TTSolver::weightedPairScore(Board &a, Board &b) {
     return (avgViolations/static_cast<double>(numTiles)) - diversityWeight * diversity;
 }
 
-std::vector<Board> TTSolver::crossover(std::vector<Board>& parents, std::mt19937 &gen){
+std::pair<Board, Board> TTSolver::crossover(std::pair<size_t, size_t>& parents, std::mt19937 &gen) {
+
+    std::pair<Board, Board> childrenBoards = std::make_pair(parentGeneration[parents.first], parentGeneration[parents.second]);
+
     // Choose a crossover point
     std::uniform_int_distribution<size_t> dist(0, numTiles);
     size_t crossoverPoint = dist(gen);
@@ -120,34 +129,35 @@ std::vector<Board> TTSolver::crossover(std::vector<Board>& parents, std::mt19937
     size_t tileCount = 0;
     for (size_t r = 0; r < numRows; r++) {
         for (size_t c = 0; c < numCols; c++) {
+            if (tileCount >= crossoverPoint) {
 
-            Tile p1Tile = parents[0].getTile(r, c);
-            Tile p2Tile = parents[1].getTile(r, c);
+                Tile p1Tile = parentGeneration[parents.first].getTile(r, c);
+                Tile p2Tile = parentGeneration[parents.second].getTile(r, c);
 
-            if (tileCount < crossoverPoint) {
-
-                if ((p1Tile.getType() != p2Tile.getType()) || ((p1Tile.getType() == Type::TENT && p2Tile.getType() == Type::TENT) && (p1Tile.getDir() != p2Tile.getDir()))){
-                    parents[1].setTile(p1Tile, gen);
+                if (childrenBoards.first.getTile(r, c).getType() != p2Tile.getType() || ((childrenBoards.first.getTile(r, c).getType() == Type::TENT && p2Tile.getType() == Type::TENT) && childrenBoards.first.getTile(r, c).getDir() != p2Tile.getDir())) {
+                    childrenBoards.first.setTile(p2Tile, gen);
                 }
 
-            } else {
-
-                if ((p2Tile.getType() != p1Tile.getType()) || ((p2Tile.getType() == Type::TENT && p1Tile.getType() == Type::TENT) && (p2Tile.getDir() != p1Tile.getDir()))){
-                    parents[0].setTile(p2Tile, gen);
+                if (childrenBoards.second.getTile(r, c).getType() != p1Tile.getType() || ((childrenBoards.second.getTile(r, c).getType() == Type::TENT && p1Tile.getType() == Type::TENT) && childrenBoards.second.getTile(r, c).getDir() != p1Tile.getDir())) {
+                    childrenBoards.second.setTile(p1Tile, gen);
                 }
 
             }
             tileCount++;
+
         }
     }
 
-    return parents;
+    return childrenBoards;
 }
 
-void TTSolver::mutation(Board& child, std::mt19937 &gen) {
+void TTSolver::mutation(std::pair<Board, Board>& children, std::mt19937 &gen) {
     std::uniform_int_distribution<int> chanceDist(0, 100);
+
+    auto& board1 = children.first;
+    auto& board2 = children.second; 
     
-    for (int i = 0; i < std::max((int)numTiles/32, 1); i++){
+    for (int i = 0; i < std::max((int)initalEmptyTiles/32, 1); i++){
 
         int randValue = chanceDist(gen);
 
@@ -156,15 +166,38 @@ void TTSolver::mutation(Board& child, std::mt19937 &gen) {
             int mutationType = mutationTypeDist(gen);
 
             if (mutationType == 0) {
-                if (!child.addTent(gen))
-                    child.removeTent(gen);
+                if (!board1.addTent(gen))
+                    board1.removeTent(gen);
             }
             else if (mutationType == 1) {
-                if (!child.removeTent(gen))
-                    child.addTent(gen);
+                if (!board1.removeTent(gen))
+                board1.addTent(gen);
             }
             else {
-                child.moveTent(gen);
+                board1.moveTent(gen);
+            }
+        }
+
+    }
+
+    for (int i = 0; i < std::max((int)initalEmptyTiles/32, 1); i++){
+
+        int randValue = chanceDist(gen);
+
+        if (randValue <= mutationChance) {
+            std::uniform_int_distribution<> mutationTypeDist(0, 2);
+            int mutationType = mutationTypeDist(gen);
+
+            if (mutationType == 0) {
+                if (!board2.addTent(gen))
+                    board2.removeTent(gen);
+            }
+            else if (mutationType == 1) {
+                if (!board2.removeTent(gen))
+                    board2.addTent(gen);
+            }
+            else {
+                board2.moveTent(gen);
             }
         }
 
@@ -190,7 +223,7 @@ void TTSolver::initialize(){
     //         }
     //     }
     // }
-    
+
 }
 
 /*
@@ -200,7 +233,7 @@ Running and Output
 */
 
 // Solve function should be the only one you run
-void TTSolver::solve(){
+size_t TTSolver::solve(){
 
     numTiles = numRows * numCols;
     initialize();
@@ -215,27 +248,31 @@ void TTSolver::solve(){
         currentGeneration[0].drawBoard();
 
         std::cout << "iteration: " << j++ << std::endl;
-        
+
         if(currentGeneration[0].getViolations() < minViolations){
             minViolations = currentGeneration[0].getViolations(); 
             counter = 0;
         }
         std::cout << minViolations << std::endl;
         if(minViolations == 0 || counter >= maxGenerationsNoImprovement){
-            std::cout << "enter c to continue or p for continue and make output" << std::endl;
-            std::string a;
-            std::cin >> a;
-            if(a == "c"){
-                counter = 0;
-            }
-            else if (a == "p"){
-                counter = 0;
-                createOutput();
-            }
-            else{
-                createOutput();
-                return;
-            }
+            // std::cout << "enter c to continue or p for continue and make output" << std::endl;
+            // std::string a;
+            // std::cin >> a;
+            // if(a == "c"){
+            //     counter = 0;
+            // }
+            // else if (a == "p"){
+            //     counter = 0;
+            //     createOutput();
+            //     return minViolations;
+            // }
+            // else{
+            //     createOutput();
+            //     return minViolations;
+            // }
+            createOutput();
+            return minViolations;
+
         }
         counter++;
     }
