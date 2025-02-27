@@ -98,10 +98,11 @@ def countTreeViolations(tents_added: set, chart: list):
         for j in range(cols):
             if chart[i][j] == "tree":
                 associated_count = tree_associations.get((i, j), 0)
-                # If a tree has 0 or more than 1 associated tent, add 1 violation.
-                if associated_count != 1:
+                if associated_count > 1:
+                    raise ValueError(f"Error: Tree at ({i},{j}) has {associated_count} associated tents, expected exactly 1.")
+                elif associated_count == 0:
                     lonely_tree_violations += 1
-                    logger.debug(f"Tree at ({i},{j}) has {associated_count} associated tent(s), 1 violation")
+                    logger.debug(f"Tree at ({i},{j}) has 0 associated tent(s), 1 violation")
     logger.debug(f"Oh so lonely tree violations: {lonely_tree_violations}")
     return lonely_tree_violations
     
