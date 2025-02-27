@@ -2,7 +2,7 @@ import sys
 import random, math, copy
 
 class TentsSolver:
-    def __init__(self, board, row_counts, col_counts, extra_sample_size=5):
+    def __init__(self, board, row_counts, col_counts, extra_sample_size=20):
         """
         board: list of strings (each string is a row).
                'T' indicates a tree; '.' indicates an empty cell.
@@ -75,64 +75,56 @@ class TentsSolver:
 
     def compute_cost(self, state):
         """
-        Compute total penalty for a given state.
-        
-        Violations include:
-          - Multiple trees using the same candidate cell (illegal; heavy penalty).
-          - A tree with no assigned tent.
-          - Row/column tent count mismatches.
-          - Tents adjacent (even diagonally) to another tent.
-          - A tree assigned a candidate that is not horizontally or vertically adjacent (adds 1 violation).
+        Revised cost function that mirrors the autograder’s violation counts:
+        - Duplicate usage of a candidate cell gets a heavy penalty.
+        - Row/column counts are penalized by the absolute difference.
+        - Each tent that touches at least one other tent (in any direction) gets 1 penalty.
+        - Each tree that either has no assigned candidate or has a candidate
+            not immediately (orthogonally) adjacent gets 1 penalty.
         """
         INF = 10**6
         cost = 0
         grid = self.state_to_grid(state)
-        
-        # Heavy penalty for duplicate usage of a candidate cell.
-        for pos, trees in grid.items():
-            if len(trees) > 1:
+
+        # 1. Duplicate usage (illegal if two trees use the same candidate).
+        for pos, tree_ids in grid.items():
+            if len(tree_ids) > 1:
                 cost += INF
-        
-        # Penalty for trees with no assigned tent.
-        for assign in state:
-            if assign is None:
-                cost += 1
-        
-        # Row/column penalties.
-        row_tents = [0] * self.rows
-        col_tents = [0] * self.cols
-        for pos in grid.keys():
-            r, c = pos
-            row_tents[r] += 1
-            col_tents[c] += 1
+
+        # 2. Row/column violations.
+        row_actual = [0] * self.rows
+        col_actual = [0] * self.cols
+        for (r, c) in grid.keys():
+            row_actual[r] += 1
+            col_actual[c] += 1
         for r in range(self.rows):
-            cost += abs(row_tents[r] - self.row_counts[r])
+            cost += abs(row_actual[r] - self.row_counts[r])
         for c in range(self.cols):
-            cost += abs(col_tents[c] - self.col_counts[c])
-        
-        # Penalty for tents adjacent (including diagonally) to one another.
+            cost += abs(col_actual[c] - self.col_counts[c])
+
+        # 3. Tent adjacency violations.
+        # (For each tent, if any neighbor (including diagonally) is also a tent, count 1 penalty.)
         tent_positions = set(grid.keys())
-        for pos in tent_positions:
-            r, c = pos
-            for dr in [-1, 0, 1]:
-                for dc in [-1, 0, 1]:
-                    if dr == 0 and dc == 0:
-                        continue
-                    nr, nc = r + dr, c + dc
-                    if (nr, nc) in tent_positions:
-                        cost += 1
-                        break
-                else:
-                    continue
-                break
-        
-        # Additional penalty: if a tree’s assigned candidate is not horizontally or vertically adjacent, add 1.
-        for i, assign in enumerate(state):
-            if assign is not None:
-                tree_r, tree_c = self.trees[i]
-                cand_r, cand_c = assign
-                if abs(tree_r - cand_r) + abs(tree_c - cand_c) != 1:
+        for (r, c) in tent_positions:
+            for dr, dc in [(-1, -1), (-1, 0), (-1, 1),
+                        (0, -1),           (0, 1),
+                        (1, -1),  (1, 0),  (1, 1)]:
+                if (r + dr, c + dc) in tent_positions:
                     cost += 1
+                    break  # Only one penalty per tent.
+                    
+        # 4. Tree association violations.
+        # Each tree must have a candidate that is immediately (horizontally or vertically) adjacent.
+        for i, assign in enumerate(state):
+            tree_r, tree_c = self.trees[i]
+            if assign is None:
+                # No candidate assigned.
+                cost += 1
+            else:
+                # Check for orthogonal adjacency.
+                if abs(tree_r - assign[0]) + abs(tree_c - assign[1]) != 1:
+                    cost += 1
+
         return cost
 
     def get_direction(self, tree, tent):
@@ -142,16 +134,16 @@ class TentsSolver:
         """
         tr, tc = tree
         r, c = tent
-        if tr == r:
-            if tc < c:
-                return 'L'
-            elif tc > c:
-                return 'R'
-        elif tc == c:
+        # Check for immediate adjacency.
+        if abs(tr - r) + abs(tc - c) == 1:
             if tr < r:
                 return 'U'
             elif tr > r:
                 return 'D'
+            elif tc < c:
+                return 'L'
+            elif tc > c:
+                return 'R'
         return 'X'
      
     def simulated_annealing(self, max_iter=300000, initial_temp=10.0, cooling_rate=0.99995):
@@ -194,30 +186,35 @@ class TentsSolver:
         """
         For each tree, if its assigned candidate is not adjacent (Manhattan distance ≠ 1),
         try to reassign an adjacent candidate (from immediate neighbors) that is not already used.
+        If no valid adjacent candidate is available, clear the assignment.
         """
-        # Build a set of candidate positions that are already valid.
-        used = {}
+        repaired_state = state[:]  # Copy the state.
+        used = {}  # Keep track of cells already assigned as valid.
+        # First, mark assignments that are valid.
         for i, pos in enumerate(state):
-            if pos is not None and abs(self.trees[i][0]-pos[0]) + abs(self.trees[i][1]-pos[1]) == 1:
+            if pos is not None and abs(self.trees[i][0] - pos[0]) + abs(self.trees[i][1] - pos[1]) == 1:
                 used[pos] = i
-        repaired_state = state[:]
+        # Now, for each tree with an invalid candidate, try to repair.
         for i, pos in enumerate(state):
-            if pos is not None:
+            if pos is not None and abs(self.trees[i][0] - pos[0]) + abs(self.trees[i][1] - pos[1]) != 1:
                 tree = self.trees[i]
-                if abs(tree[0]-pos[0]) + abs(tree[1]-pos[1]) != 1:
-                    # Get immediate adjacent cells.
-                    adjacent = []
-                    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                        nr, nc = tree[0] + dr, tree[1] + dc
-                        if 0 <= nr < self.rows and 0 <= nc < self.cols:
-                            if self.board[nr][nc] == '.':
-                                adjacent.append((nr, nc))
-                    # Try to choose an adjacent candidate that's not already used.
-                    for cand in adjacent:
-                        if cand not in used:
-                            repaired_state[i] = cand
-                            used[cand] = i
-                            break
+                adjacent = []
+                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nr, nc = tree[0] + dr, tree[1] + dc
+                    if 0 <= nr < self.rows and 0 <= nc < self.cols:
+                        if self.board[nr][nc] == '.':
+                            adjacent.append((nr, nc))
+                # Try to pick an adjacent candidate that's not already used.
+                found = False
+                for cand in adjacent:
+                    if cand not in used:
+                        repaired_state[i] = cand
+                        used[cand] = i
+                        found = True
+                        break
+                if not found:
+                    # Clear the assignment if no valid adjacent candidate exists.
+                    repaired_state[i] = None
         return repaired_state
 
     def solve(self):
