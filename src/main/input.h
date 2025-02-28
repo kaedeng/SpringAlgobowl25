@@ -10,6 +10,7 @@ class Input {
 public:
     Board inputFromFile(std::string fileName);
     void testOutput();
+    Board mergePrecomputedOutput(Board baseBoard, const std::string &outputFile);
 
 private:
     size_t rows;

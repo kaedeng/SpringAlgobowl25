@@ -89,6 +89,9 @@ class Board{
          */
         bool placeTent(Tile&, std::mt19937&);
 
+        // Overloaded function for placing a tent with a given row, col, and direction.
+        bool placeTent(int row, int col, char dir);
+
         /**
          * @brief (currently) Places tent randomly
          * @return true

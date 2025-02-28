@@ -146,7 +146,7 @@ class TentsSolver:
                 return 'R'
         return 'X'
      
-    def simulated_annealing(self, max_iter=300000, initial_temp=10.0, cooling_rate=0.99995):
+    def simulated_annealing(self, max_iter=400000, initial_temp=1.0, cooling_rate=0.9999953):
         """
         Perform simulated annealing to minimize the cost.
         Returns (best_state, best_cost, best_iteration).

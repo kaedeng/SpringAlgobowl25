@@ -121,3 +121,47 @@ void Input::testOutput() {
         std::cout << '\n';
     }
 }
+
+#include "input.h"
+#include <fstream>
+#include <iostream>
+
+// Existing inputFromFile(…) remains unchanged
+
+// New function to merge a precomputed output into a base board.
+Board Input::mergePrecomputedOutput(Board baseBoard, const std::string &outputFile) {
+    std::ifstream in(outputFile);
+    if (!in) {
+        std::cerr << "Error opening output file: " << outputFile << std::endl;
+        return baseBoard;
+    }
+
+    // Read the first two lines: number of violations and number of tents.
+    int violations;
+    in >> violations;  // This value might be used for logging/debugging.
+    int tentCount;
+    in >> tentCount;
+
+    // For each tent, read its row, column, and direction.
+    // (Assuming rows and cols in the file are 1-indexed.)
+    for (int i = 0; i < tentCount; i++) {
+        int row, col;
+        char dir;  // Assuming direction is provided as a character (e.g., 'U', 'D', etc.)
+        in >> row >> col >> dir;
+        // Adjust for 0-indexed coordinates.
+        int boardRow = row - 1;
+        int boardCol = col - 1;
+        
+        // Place the tent on the board.
+        // Here we assume that Board has a function to mark a tile as a tent with a given direction.
+        // If such a function does not exist yet, you may add it. For example, you might add a method:
+        //    bool Board::placeTent(int row, int col, char dir)
+        // that updates the tile type and direction.
+        if (!baseBoard.placeTent(boardRow, boardCol, dir)) {
+            // If placing a tent fails (perhaps because the tile already has a tent),
+            // you might decide to remove the existing one first or simply report an error.
+            std::cerr << "Warning: could not place tent at (" << boardRow << "," << boardCol << ")." << std::endl;
+        }
+    }
+    return baseBoard;
+}
